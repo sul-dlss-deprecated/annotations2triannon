@@ -26,6 +26,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'pry'
   s.add_dependency 'pry-doc'
   s.add_dependency 'ruby-progressbar'
+
+  s.add_dependency 'json'
+  s.add_dependency 'linkeddata'
+
   s.add_development_dependency 'rspec'
 
   s.files   = `git ls-files`.split($/)

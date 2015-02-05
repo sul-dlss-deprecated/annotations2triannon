@@ -3,13 +3,12 @@ Dotenv.load
 
 require 'pry'
 require 'pry-doc'
+require 'ruby-progressbar'
 
 require 'json'
 require 'linkeddata'
-require 'ruby-progressbar'
 
 require_relative 'annotations2triannon/configuration'
-
 
 module Annotations2triannon
 
