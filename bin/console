@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+require 'annotations2triannon'
+CONFIG = Annotations2triannon.configuration
+binding.pry
+
