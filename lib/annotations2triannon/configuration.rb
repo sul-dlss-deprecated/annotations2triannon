@@ -4,11 +4,12 @@ module Annotations2triannon
   class Configuration
 
     attr_accessor :debug
+    attr_accessor :logger
 
     def initialize
       @debug = env_boolean('DEBUG')
 
-      # logging
+      # logger
       log_file = ENV['LOG_FILE'] || 'annotations2triannon.log'
       log_file = File.absolute_path log_file
       @log_file = log_file
@@ -25,6 +26,7 @@ module Annotations2triannon
       end
       @logger = Logger.new(log_file, shift_age = 'monthly')
       @logger.level = @debug ? Logger::DEBUG : Logger::INFO
+
     end
 
     def env_boolean(var)

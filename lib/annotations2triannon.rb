@@ -7,8 +7,13 @@ require 'ruby-progressbar'
 
 require 'json'
 require 'linkeddata'
+require 'rdf/open_annotation'
+require 'rest-client'
 
 require_relative 'annotations2triannon/configuration'
+require_relative 'annotations2triannon/revs'
+require_relative 'annotations2triannon/open_annotation'
+require_relative 'annotations2triannon/triannon_client'
 
 module Annotations2triannon
 
