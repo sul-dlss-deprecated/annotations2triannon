@@ -3,7 +3,6 @@ module Annotations2triannon
 
   class DMSCollection
 
-    attr_accessor :open_annotations
     attr_accessor :iiif_collection
     attr_accessor :iiif_manifests
     attr_accessor :sc_manifests
