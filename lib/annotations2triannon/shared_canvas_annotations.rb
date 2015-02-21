@@ -1,6 +1,8 @@
 
 module Annotations2triannon
 
+  # http://iiif.io/model/shared-canvas/1.0/index.html#AnnotationList
+
   class SharedCanvasAnnotations < Resource
 
     attr_reader :open_annotations

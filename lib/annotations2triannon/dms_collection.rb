@@ -35,6 +35,7 @@ module Annotations2triannon
     end
 
     def sc_annotation_lists
+      # http://iiif.io/model/shared-canvas/1.0/index.html#AnnotationList
       return @sc_annotation_lists unless @sc_annotation_lists.nil?
       @sc_annotation_lists = {}
       sc_manifests.collect do |sc_manifest|
@@ -47,11 +48,14 @@ module Annotations2triannon
 
     def sc_open_annotations
       return @sc_open_annotations unless @sc_open_annotations.nil?
-      @sc_open_annotations = {}
+      @sc_open_annotations = []
       sc_annotation_lists.each_pair do |sc_manifest_uri, sc_array|
         sc_array.each do |sc_list|
-          raise 'This is not an sc:AnnotationList' unless sc_list.annotation_list?
-          @sc_open_annotations[ [sc_manifest_uri, sc_list.iri.to_s] ] = sc_list.open_annotations
+          @sc_open_annotations << {
+              :manifest => sc_manifest_uri,
+              :annotation_list => sc_list.iri.to_s,
+              :open_annotations => sc_list.open_annotations
+          }
         end
       end
       @sc_open_annotations
