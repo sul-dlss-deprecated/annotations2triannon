@@ -1,14 +1,16 @@
 require 'rdf/open_annotation'
+require 'uuid'
 
 module Annotations2triannon
 
+  # class OpenAnnotation < Graph
   class OpenAnnotation
 
     attr_accessor :id
     attr_accessor :graph # an RDF::Graph
 
-    def initialize(id=RDF::Node.new)
-      @id = id
+    def initialize(id=UUID.generate)
+      @id = RDF::URI.parse(id)
       @graph = RDF::Graph.new
       @graph.insert(RDF::Statement.new(@id, RDF.type, RDF::OpenAnnotation.Annotation))
       insert_motivatedBy
@@ -49,6 +51,26 @@ module Annotations2triannon
     def to_ttl
       @graph.dump(:ttl, standard_prefixes: true)
     end
+
+    # # @return json-ld representation of graph with OpenAnnotation context as a url
+    # def jsonld_oa
+    #   inline_context = @graph.dump(:jsonld, :context => Triannon::JsonldContext::OA_CONTEXT_URL)
+    #   hash_from_json = JSON.parse(inline_context)
+    #   hash_from_json["@context"] = Triannon::JsonldContext::OA_CONTEXT_URL
+    #   hash_from_json.to_json
+    #
+    #   # TODO: return from json to graph?
+    #   #RDF::Graph.new << JSON::LD::API.toRdf(input)
+    # end
+    #
+    # # @return json-ld representation of graph with IIIF context as a url
+    # def jsonld_iiif
+    #   inline_context = @graph.dump(:jsonld, :context => Triannon::JsonldContext::IIIF_CONTEXT_URL)
+    #   hash_from_json = JSON.parse(inline_context)
+    #   hash_from_json["@context"] = Triannon::JsonldContext::IIIF_CONTEXT_URL
+    #   hash_from_json.to_json
+    # end
+
 
   end
 

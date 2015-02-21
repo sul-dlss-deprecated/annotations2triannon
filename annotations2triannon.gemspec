@@ -19,19 +19,23 @@ Gem::Specification.new do |s|
 
   # s.extra_rdoc_files = ['README.md', 'LICENSE']
 
+  # general utils
+  s.add_dependency 'json'
+  s.add_dependency 'uuid'
   # Use ENV for config
   s.add_dependency 'dotenv'
-
+  # HTTP and RDF linked data
+  s.add_dependency 'addressable', '~> 2.3'
+  s.add_dependency 'linkeddata', '~> 1.0'
+  s.add_dependency 'rdf-open_annotation'
+  s.add_dependency 'rest-client', '~> 1.0'
   # Use pry for console and debug config
   s.add_dependency 'pry'
   s.add_dependency 'pry-doc'
-  s.add_dependency 'ruby-progressbar'
-
-  s.add_dependency 'json'
-  s.add_dependency 'linkeddata'
-  s.add_dependency 'rdf-open_annotation'
-  s.add_dependency 'rest-client'
-
+  # performance utils
+  s.add_dependency 'parallel', '~> 1.0'
+  s.add_dependency 'ruby-progressbar', '~> 1.0'
+  # database gems
   s.add_dependency 'mysql2'
   s.add_dependency 'sequel'
 

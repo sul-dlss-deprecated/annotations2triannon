@@ -1,4 +1,3 @@
-require 'rest-client'
 
 module Annotations2triannon
 
