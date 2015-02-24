@@ -41,6 +41,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec'
+  s.add_development_dependency 'coveralls'
 
   s.files   = `git ls-files`.split($/)
   dev_files = %w(.gitignore bin/setup.sh bin/test.sh)
