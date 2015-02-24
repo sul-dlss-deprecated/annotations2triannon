@@ -39,6 +39,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'mysql2'
   s.add_dependency 'sequel'
 
+  s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec'
 
   s.files   = `git ls-files`.split($/)
