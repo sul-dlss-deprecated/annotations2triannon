@@ -1,5 +1,7 @@
 *.gem
+*.gemtags
 *.rbc
+*.tags
 /.config
 /.env
 /coverage/

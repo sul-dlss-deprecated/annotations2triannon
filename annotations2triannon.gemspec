@@ -40,6 +40,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'sequel'
 
   s.add_development_dependency 'rspec'
+  s.add_development_dependency 'guard'
+  s.add_development_dependency 'guard-ctags-bundler'
+
 
   s.files   = `git ls-files`.split($/)
   dev_files = %w(.gitignore bin/setup.sh bin/test.sh)
