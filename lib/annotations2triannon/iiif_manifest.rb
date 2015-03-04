@@ -1,20 +1,18 @@
 
 module Annotations2triannon
 
-  class IIIFManifest < Resource
+  class IIIFManifest < Manifest
 
-    def manifest?
-      iri_types.filter {|s| s[:o] == 'http://iiif.io/api/presentation/2#Manifest' }.length > 0
-    end
+    attr_reader :annotation_lists
 
-    def open_annotations
-      q = SPARQL.parse('SELECT * WHERE { ?s a <http://www.w3.org/ns/oa#Annotation> }')
-      rdf.query(q).collect {|s| s[:s] }
-    end
-
-    def canvas_annotation_lists
-      q = SPARQL.parse('SELECT * WHERE { ?s a <http://www.shared-canvas.org/ns/AnnotationList> }')
-      rdf.query(q).collect {|s| s[:s] }
+    def annotation_lists
+      return @annotation_lists unless @annotation_lists.nil?
+      q = SPARQL.parse('SELECT * WHERE { ?s a <http://iiif.io/model/shared-canvas/1.0/index.html#AnnotationList>}')
+      @annotation_lists = rdf.query(q).collect do |s|
+        uri = s[:s].to_s
+        Annotations2triannon::IIIFAnnotations.new(uri)
+      end
+      @annotation_lists
     end
 
   end

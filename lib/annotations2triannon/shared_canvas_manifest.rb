@@ -1,20 +1,18 @@
 
 module Annotations2triannon
 
-  class SharedCanvasManifest < Resource
+  class SharedCanvasManifest < Manifest
 
-    def manifest?
-      iri_types.filter {|s| s[:o] == 'http://www.shared-canvas.org/ns/Manifest' }.length > 0
-    end
+    attr_reader :annotation_lists
 
     def annotation_lists
+      return @annotation_lists unless @annotation_lists.nil?
       q = SPARQL.parse('SELECT * WHERE { ?s a <http://www.shared-canvas.org/ns/AnnotationList> }')
-      rdf.query(q).collect {|s| s[:s] }
-    end
-
-    def open_annotations
-      q = SPARQL.parse('SELECT * WHERE { ?s a <http://www.w3.org/ns/oa#Annotation> }')
-      rdf.query(q).collect {|s| s[:s] }
+      @annotation_lists = rdf.query(q).collect do |s|
+        uri = s[:s].to_s
+        Annotations2triannon::SharedCanvasAnnotations.new(uri)
+      end
+      @annotation_lists
     end
 
   end

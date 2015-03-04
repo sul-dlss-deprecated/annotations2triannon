@@ -1,10 +1,11 @@
 
 module Annotations2triannon
 
-  class DMSCollection
+  class IIIFNavigator
 
     attr_accessor :iiif_collection
     attr_accessor :iiif_manifests
+    attr_accessor :iiif_open_annotations
     attr_accessor :sc_manifests
     attr_accessor :sc_annotation_lists
     attr_accessor :sc_open_annotations
@@ -22,26 +23,53 @@ module Annotations2triannon
       @iiif_collection ||= Annotations2triannon::IIIFCollection.new(@uri)
     end
 
+    def iiif_manifests?
+      ! iiif_manifests.empty?
+    end
+
     def iiif_manifests
-      @iiif_manifests ||= iiif_collection.manifests.collect do |m|
-        Annotations2triannon::IIIFManifest.new(m.to_s)
+      @iiif_manifests ||= iiif_collection.iiif_manifests
+    end
+
+    def iiif_annotation_lists
+      # http://iiif.io/model/shared-canvas/1.0/index.html#AnnotationList
+      return @iiif_annotation_lists unless @iiif_annotation_lists.nil?
+      @iiif_annotation_lists = {}
+      iiif_manifests.collect do |iiif_manifest|
+        @iiif_annotation_lists[iiif_manifest.iri.to_s] = iiif_manifest.annotation_lists
       end
+      @iiif_annotation_lists
+    end
+
+    def iiif_open_annotations
+      return @iiif_open_annotations unless @iiif_open_annotations.nil?
+      @iiif_open_annotations = []
+      iiif_annotation_lists.each_pair do |iiif_manifest_uri, iiif_annotations_list|
+        iiif_annotations_list.each do |iiif_list|
+          @iiif_open_annotations << {
+              :manifest => iiif_manifest_uri,
+              :annotation_list => iiif_list.iri.to_s,
+              :open_annotations => iiif_list.open_annotations
+          }
+        end
+      end
+      @iiif_open_annotations
+    end
+
+
+    def sc_manifests?
+      ! sc_manifests.empty?
     end
 
     def sc_manifests
-      @sc_manifests ||= iiif_collection.manifests.collect do |m|
-        Annotations2triannon::SharedCanvasManifest.new(m.to_s)
-      end
+      @sc_manifests ||= iiif_collection.sc_manifests
     end
 
     def sc_annotation_lists
-      # http://iiif.io/model/shared-canvas/1.0/index.html#AnnotationList
       return @sc_annotation_lists unless @sc_annotation_lists.nil?
       @sc_annotation_lists = {}
       sc_manifests.collect do |sc_manifest|
-        @sc_annotation_lists[sc_manifest.iri.to_s] = sc_manifest.annotation_lists.collect do |al|
-          Annotations2triannon::SharedCanvasAnnotations.new(al)
-        end
+        @sc_annotation_lists[sc_manifest.iri.to_s] = sc_manifest.annotation_lists
       end
       @sc_annotation_lists
     end
@@ -49,8 +77,8 @@ module Annotations2triannon
     def sc_open_annotations
       return @sc_open_annotations unless @sc_open_annotations.nil?
       @sc_open_annotations = []
-      sc_annotation_lists.each_pair do |sc_manifest_uri, sc_array|
-        sc_array.each do |sc_list|
+      sc_annotation_lists.each_pair do |sc_manifest_uri, sc_annotations_list|
+        sc_annotations_list.each do |sc_list|
           @sc_open_annotations << {
               :manifest => sc_manifest_uri,
               :annotation_list => sc_list.iri.to_s,

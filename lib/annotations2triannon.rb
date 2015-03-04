@@ -2,6 +2,8 @@ require 'requires'
 
 module Annotations2triannon
 
+  AGENT = RDF::URI.parse('https://github.com/sul-dlss/annotations2triannon')
+
   # configuration at the module level, see
   # http://brandonhilkert.com/blog/ruby-gem-configuration-patterns/
 

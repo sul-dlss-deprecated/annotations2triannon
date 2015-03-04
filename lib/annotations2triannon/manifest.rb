@@ -1,21 +1,31 @@
 
 module Annotations2triannon
 
-  # http://iiif.io/model/shared-canvas/1.0/index.html#AnnotationList
+  class Manifest < Resource
 
-  class SharedCanvasAnnotations < Resource
+    IIIF_MANIFEST_TYPE = 'http://iiif.io/api/presentation/2#Manifest'
+
+    SC_MANIFEST_TYPE = 'http://www.shared-canvas.org/ns/Manifest'
 
     attr_reader :open_annotations
 
-    def annotation_list?
-      iri_type? 'http://www.shared-canvas.org/ns/AnnotationList'
+    def manifest?
+      sc_manifest? || iiif_manifest?
+    end
+
+    def iiif_manifest?
+      iri_type? IIIF_MANIFEST_TYPE
+    end
+
+    def sc_manifest?
+      iri_type? SC_MANIFEST_TYPE
     end
 
     def open_annotations
       @open_annotations ||= _query_annotations
     end
 
-    # private
+    private
 
     def _query_annotations
       oa_graphs = []
@@ -26,10 +36,12 @@ module Annotations2triannon
           g << [s,p,o]
           g << rdf_expand_blank_nodes(o) if o.node?
         end
+        # TODO: convert g into Annotations2triannon::OpenAnnotation?
         oa_graphs << g
       end
       oa_graphs
     end
+
   end
 
 end
