@@ -1,8 +1,11 @@
 # Utilities for Bulk Loading Open Annotations into Triannon and Fedora4
 
+[![Build Status](https://travis-ci.org/sul-dlss/annotations2triannon.svg?branch=master)](https://travis-ci.org/sul-dlss/annotations2triannon)
+
 ## A work in progress
 
 - rapidly evolving code (as of early 2015)
+- no gems published yet
 - no stable API
 
 ## Open Annotation Resources
