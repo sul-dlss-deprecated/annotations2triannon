@@ -11,7 +11,6 @@ require 'rest-client'
 require 'uuid'
 
 require 'linkeddata'
-# require 'rdf/open_annotation'
 require_relative 'rdf/vocab/oa.rb'
 require_relative 'rdf/vocab/sc.rb'
 
