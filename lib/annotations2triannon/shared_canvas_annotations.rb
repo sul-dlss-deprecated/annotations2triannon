@@ -8,7 +8,7 @@ module Annotations2triannon
     attr_reader :open_annotations
 
     def annotation_list?
-      iri_type? 'http://www.shared-canvas.org/ns/AnnotationList'
+      iri_type? RDF::SC.AnnotationList
     end
 
     def open_annotations
@@ -19,7 +19,7 @@ module Annotations2triannon
 
     def _query_annotations
       oa_graphs = []
-      q = [nil, RDF.type, RDF::OpenAnnotation.Annotation]
+      q = [nil, RDF.type, RDF::OA.Annotation]
       rdf.query(q).each_subject do |subject|
         g = RDF::Graph.new
         rdf.query([subject, nil, nil]) do |s,p,o|
