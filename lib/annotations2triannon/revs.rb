@@ -56,19 +56,17 @@ module Annotations2triannon
       # user_graph.insert([user_uri, RDF::SCHEMA.description, user_info])
       if user[:public]
         unless user[:first_name].nil? || user[:first_name].empty?
-          # TODO: add a language tag?
+          # TODO: add language tags?
           #fn = RDF::Literal.new(user[:first_name], :language => :en)
           fn = RDF::Literal.new(user[:first_name])
           user_graph.insert([user_uri, RDF::SCHEMA.givenName, fn])
         end
         unless user[:last_name].nil? || user[:last_name].empty?
-          # TODO: add a language tag?
           #ln = RDF::Literal.new(user[:last_name], :language => :en)
           ln = RDF::Literal.new(user[:last_name])
           user_graph.insert([user_uri, RDF::SCHEMA.familyName, ln])
         end
         unless user[:bio].nil? || user[:bio].empty?
-          # TODO: add a language tag?
           #description = RDF::Literal.new(user[:bio], :language => :en)
           description = RDF::Literal.new(user[:bio])
           user_graph.insert([user_uri, RDF::SCHEMA.description, description])
