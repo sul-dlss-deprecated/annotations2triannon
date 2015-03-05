@@ -1,4 +1,3 @@
-require 'rdf/open_annotation'
 require 'uuid'
 
 module Annotations2triannon
