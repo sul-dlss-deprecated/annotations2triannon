@@ -32,38 +32,38 @@ module Annotations2triannon
 
     def get_id
       return @id unless @id.nil?
-      q = [nil, RDF.type, RDF::OpenAnnotation.Annotation]
+      q = [nil, RDF.type, RDF::OA.Annotation]
       @id = @graph.query(q).collect {|s| s.subject }.first || RDF::URI.parse(UUID.generate)
     end
 
     def open_annotation?
       # TODO: check rules for basic open annotation
       q = RDF::Query.new
-      q << [@id, RDF.type, RDF::OpenAnnotation.Annotation]
-      q << [@id, RDF::OpenAnnotation.hasBody, :b]
-      q << [@id, RDF::OpenAnnotation.hasTarget, :t]
+      q << [@id, RDF.type, RDF::OA.Annotation]
+      q << [@id, RDF::OA.hasBody, :b]
+      q << [@id, RDF::OA.hasTarget, :t]
       @graph.query(q).size > 0
     end
 
     def insert_annotation
-      s = [@id, RDF.type, RDF::OpenAnnotation.Annotation]
+      s = [@id, RDF.type, RDF::OA.Annotation]
       @graph.delete(s)
       @graph.insert(s)
     end
 
     def is_annotation?
-      q = [@id, RDF.type, RDF::OpenAnnotation.Annotation]
+      q = [@id, RDF.type, RDF::OA.Annotation]
       @graph.query(q).size > 0
     end
 
     def insert_hasTarget(target)
       # TODO: raise ValueError when target is outside hasTarget range?
-      @graph.insert([@id, RDF::OpenAnnotation.hasTarget, target])
+      @graph.insert([@id, RDF::OA.hasTarget, target])
     end
 
     # @return [Array] The hasTarget object(s)
     def hasTarget
-      q = [nil, RDF::OpenAnnotation.hasTarget, nil]
+      q = [nil, RDF::OA.hasTarget, nil]
       @graph.query(q).collect {|s| s.object }
     end
 
@@ -73,12 +73,12 @@ module Annotations2triannon
 
     def insert_hasBody(body)
       # TODO: raise ValueError when body is outside hasBody range?
-      @graph.insert([@id, RDF::OpenAnnotation.hasBody, body])
+      @graph.insert([@id, RDF::OA.hasBody, body])
     end
 
     # @return [Array] The hasBody object(s)
     def hasBody
-      q = [nil, RDF::OpenAnnotation.hasBody, nil]
+      q = [nil, RDF::OA.hasBody, nil]
       @graph.query(q).collect {|s| s.object }
     end
 
@@ -91,7 +91,7 @@ module Annotations2triannon
     def body_chars
       result = []
       q = RDF::Query.new
-      q << [nil, RDF::OpenAnnotation.hasBody, :body]
+      q << [nil, RDF::OA.hasBody, :body]
       q << [:body, RDF.type, RDF::Content.ContentAsText]
       q << [:body, RDF::Content.chars, :body_chars]
       solns = @graph.query q
@@ -101,33 +101,33 @@ module Annotations2triannon
       result
     end
 
-    def insert_motivatedBy(motivation=RDF::OpenAnnotation.commenting)
-      @graph.insert([@id, RDF::OpenAnnotation.motivatedBy, motivation])
+    def insert_motivatedBy(motivation=RDF::OA.commenting)
+      @graph.insert([@id, RDF::OA.motivatedBy, motivation])
     end
 
     # @return [Array] The motivatedBy object(s)
     def motivatedBy
-      q = [nil, RDF::OpenAnnotation.motivatedBy, nil]
+      q = [nil, RDF::OA.motivatedBy, nil]
       @graph.query(q).collect {|s| s.object }
     end
 
     def insert_annotatedBy(annotator=nil)
-      @graph.insert([@id, RDF::OpenAnnotation.annotatedBy, annotator])
+      @graph.insert([@id, RDF::OA.annotatedBy, annotator])
     end
 
     # @return [Array<String>|nil] The identity for the annotatedBy object(s)
     def annotatedBy
-      q = [:s, RDF::OpenAnnotation.annotatedBy, :o]
+      q = [:s, RDF::OA.annotatedBy, :o]
       @graph.query(q).collect {|s| s.object }
     end
 
     def insert_annotatedAt(datetime=rdf_now)
-      @graph.insert([@id, RDF::OpenAnnotation.annotatedAt, datetime])
+      @graph.insert([@id, RDF::OA.annotatedAt, datetime])
     end
 
     # @return [Array<String>|nil] The datetime from the annotatedAt object(s)
     def annotatedAt
-      q = [nil, RDF::OpenAnnotation.annotatedAt, nil]
+      q = [nil, RDF::OA.annotatedAt, nil]
       @graph.query(q).collect {|s| s.object }
     end
 
@@ -140,9 +140,9 @@ module Annotations2triannon
       # When adding the agent, ensure it's not there already, also
       # an open annotation cannot have more than one oa:serializedAt.
       @graph.delete([nil,nil,@@agent])
-      @graph.delete([nil, RDF::OpenAnnotation.serializedAt, nil])
-      @graph << [@id, RDF::OpenAnnotation.serializedAt, rdf_now]
-      @graph << [@id, RDF::OpenAnnotation.serializedBy, @@agent]
+      @graph.delete([nil, RDF::OA.serializedAt, nil])
+      @graph << [@id, RDF::OA.serializedAt, rdf_now]
+      @graph << [@id, RDF::OA.serializedBy, @@agent]
     end
 
     # A json-ld representation of the open annotation

@@ -3,10 +3,6 @@ module Annotations2triannon
 
   class Manifest < Resource
 
-    IIIF_MANIFEST_TYPE = 'http://iiif.io/api/presentation/2#Manifest'
-
-    SC_MANIFEST_TYPE = 'http://www.shared-canvas.org/ns/Manifest'
-
     attr_reader :open_annotations
 
     def manifest?
@@ -14,11 +10,11 @@ module Annotations2triannon
     end
 
     def iiif_manifest?
-      iri_type? IIIF_MANIFEST_TYPE
+      iri_type? RDF::IIIFPresentation.Manifest
     end
 
     def sc_manifest?
-      iri_type? SC_MANIFEST_TYPE
+      iri_type? RDF::SC.Manifest
     end
 
     def open_annotations
@@ -29,7 +25,7 @@ module Annotations2triannon
 
     def _query_annotations
       oa_graphs = []
-      q = [nil, RDF.type, RDF::OpenAnnotation.Annotation]
+      q = [nil, RDF.type, RDF::OA.Annotation]
       rdf.query(q).each_subject do |subject|
         g = RDF::Graph.new
         rdf.query([subject, nil, nil]) do |s,p,o|
