@@ -1,6 +1,12 @@
 # -*- encoding: utf-8 -*-
 # This file generated manually from
 # http://iiif.io/model/shared-canvas/1.0/index.html; it's likely incomplete!
+#
+# Note: this class fails to cooperate with:
+# puts RDF::Graph.load( RDF::SC ).to_ttl
+# That should work, e.g. see:
+# puts RDF::Graph.load( RDF::RDFS ).to_ttl
+#
 require 'rdf'
 module RDF
   class SC < RDF::StrictVocabulary("http://www.shared-canvas.org/ns/")
