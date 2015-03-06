@@ -8,35 +8,40 @@ module Annotations2triannon
     attr_reader :sc_manifests
 
     def collection?
-      # iri_types.filter {|s| s[:o] == 'http://iiif.io/api/presentation/2#Collection' }.length > 0
-      iri_type? 'http://iiif.io/api/presentation/2#Collection'
+      iri_type? RDF::IIIFPresentation.Collection
     end
 
-    # def manifests
-    #   return @manifests unless @manifests.nil?
-    #   sc_m = sc_manifests
-    #   iiif_m = iiif_manifests
-    #   binding.pry
-    # end
+    def manifests
+      return @manifests unless @manifests.nil?
+      manifests = []
+      manifests.push(* rdf.query(query_sc_manifests).collect   {|s| s.subject })
+      manifests.push(* rdf.query(query_iiif_manifests).collect {|s| s.subject })
+      @manifests = manifests.collect {|m| Annotations2triannon::Manifest.new(m)}
+    end
 
-    # TODO: Could and/or should a IIIF collection contain sc:Manifests ?
-    # http://www.shared-canvas.org/ns/
     def sc_manifests
       return @sc_manifests unless @sc_manifests.nil?
-      q = SPARQL.parse('SELECT * WHERE { ?s a <http://www.shared-canvas.org/ns/Manifest> }')
-      @sc_manifests = rdf.query(q).collect do |s|
-        uri = s[:s].to_s
-        Annotations2triannon::SharedCanvasManifest.new(uri)
+      @sc_manifests = rdf.query(query_sc_manifests).collect do |s|
+        Annotations2triannon::SharedCanvasManifest.new(s.subject)
       end
     end
 
     def iiif_manifests
       return @iiif_manifests unless @iiif_manifests.nil?
-      q = SPARQL.parse('SELECT * WHERE { ?s a <http://iiif.io/api/presentation/2#Manifest> }')
-      @iiif_manifests = rdf.query(q).collect do |s|
-        uri = s[:s].to_s
-        Annotations2triannon::IIIFManifest.new(uri)
+      @iiif_manifests = rdf.query(query_iiif_manifests).collect do |s|
+        Annotations2triannon::IIIFManifest.new(s.subject)
       end
+    end
+
+
+    private
+
+    def query_iiif_manifests
+      [nil, RDF.type, RDF::IIIFPresentation.Manifest]
+    end
+
+    def query_sc_manifests
+      [nil, RDF.type, RDF::SC.Manifest]
     end
 
   end
