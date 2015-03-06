@@ -52,11 +52,11 @@ module Annotations2triannon
       if uri =~ /\A#{URI::regexp}\z/
         uri = Addressable::URI.parse(uri.to_s) rescue nil
       end
-      # Strip off any trailing '/'
-      if uri.to_s.end_with? '/'
-        uri = uri.to_s.gsub(/\/$/,'')
-        uri = Addressable::URI.parse(uri.to_s) rescue nil
-      end
+      # # Strip off any trailing '/'
+      # if uri.to_s.end_with? '/'
+      #   uri = uri.to_s.gsub(/\/$/,'')
+      #   uri = Addressable::URI.parse(uri.to_s) rescue nil
+      # end
       raise 'invalid uri' unless uri.instance_of? Addressable::URI
       @iri = uri
     end
