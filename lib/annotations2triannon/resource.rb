@@ -96,7 +96,8 @@ module Annotations2triannon
         tries += 1
         @rdf = RDF::Graph.load(uri4rdf)
       rescue
-        retry if tries <= 2
+        sleep 1*tries
+        retry if tries < 3
         binding.pry if @@config.debug
         nil
       end
