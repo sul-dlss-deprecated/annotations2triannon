@@ -89,10 +89,8 @@ module Annotations2triannon
       # TODO: try to retrieve the rdf from a local triple store
       # TODO: if local triple store fails, try remote source(s)
       # TODO: if retrieved from a remote source, save the rdf to a local triple store
-      @rdf ||= get_rdf(@iri.to_s)
-    end
-
-    def get_rdf(uri4rdf)
+      return @rdf unless @rdf.nil?
+      uri4rdf = @iri.to_s
       tries = 0
       begin
         tries += 1
