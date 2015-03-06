@@ -99,7 +99,8 @@ module Annotations2triannon
         sleep 1*tries
         retry if tries < 3
         binding.pry if @@config.debug
-        nil
+        @@config.logger.error("Failed to retrieve RDF for #{uri4rdf}")
+        @rdf = nil
       end
     end
 
@@ -268,7 +269,6 @@ module Annotations2triannon
     # ---
     # Transforms or Serialization
 
-
     # A json-ld object for the rdf resource
     def as_jsonld
       JSON::LD::API::fromRdf(rdf)
@@ -283,7 +283,6 @@ module Annotations2triannon
     def to_ttl
       rdf.dump(:ttl, standard_prefixes: true)
     end
-
 
   end
 
