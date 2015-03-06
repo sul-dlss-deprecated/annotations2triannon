@@ -19,12 +19,13 @@ module Annotations2triannon
         Dir.mkdir log_path rescue nil
       end
       begin
-        log_file = File.new(@log_file, 'w+')
+        log_dev = File.new(@log_file, 'w+')
       rescue
-        log_file = $stderr
+        log_dev = $stderr
         @log_file = 'STDERR'
       end
-      @logger = Logger.new(log_file, shift_age = 'monthly')
+      log_dev.sync = true if @debug # skip IO buffering in debug mode
+      @logger = Logger.new(log_dev, 'monthly')
       @logger.level = @debug ? Logger::DEBUG : Logger::INFO
 
     end
