@@ -5,6 +5,13 @@ module Annotations2triannon
   # class OpenAnnotation < Resource
   class OpenAnnotation
 
+    OA = RDF::Vocab::OA
+    OA_ROOT_URL = 'http://www.w3.org/ns/oa'
+    CONTEXT_OA_URL = OA_ROOT_URL + '.jsonld'
+    CONTEXT_OA_DATED_URL = OA_ROOT_URL + '-context-20130208.json'
+    IIIF_ROOT_URL = 'http://iiif.io/api/presentation/2/'
+    CONTEXT_IIIF_URL = IIIF_ROOT_URL + 'context.json'
+
     attr_accessor :id
     attr_accessor :graph # an RDF::Graph
 
@@ -31,38 +38,40 @@ module Annotations2triannon
 
     def get_id
       return @id unless @id.nil?
-      q = [nil, RDF.type, RDF::OA.Annotation]
+      q = [nil, RDF.type, OA.Annotation]
       @id = @graph.query(q).collect {|s| s.subject }.first || RDF::URI.parse(UUID.generate)
     end
 
+    # @return [boolean] true if RDF.type is OA.Annotation, with OA.hasBody and OA.hasTarget
     def open_annotation?
       # TODO: check rules for basic open annotation
       q = RDF::Query.new
-      q << [@id, RDF.type, RDF::OA.Annotation]
-      q << [@id, RDF::OA.hasBody, :b]
-      q << [@id, RDF::OA.hasTarget, :t]
+      q << [@id, RDF.type, OA.Annotation]
+      q << [@id, OA.hasBody, :b]
+      q << [@id, OA.hasTarget, :t]
       @graph.query(q).size > 0
     end
 
     def insert_annotation
-      s = [@id, RDF.type, RDF::OA.Annotation]
+      s = [@id, RDF.type, OA.Annotation]
       @graph.delete(s)
       @graph.insert(s)
     end
 
+    # @return [boolean] true if RDF.type is OA.Annotation
     def is_annotation?
-      q = [@id, RDF.type, RDF::OA.Annotation]
+      q = [@id, RDF.type, OA.Annotation]
       @graph.query(q).size > 0
     end
 
     def insert_hasTarget(target)
       # TODO: raise ValueError when target is outside hasTarget range?
-      @graph.insert([@id, RDF::OA.hasTarget, target])
+      @graph.insert([@id, OA.hasTarget, target])
     end
 
     # @return [Array] The hasTarget object(s)
     def hasTarget
-      q = [nil, RDF::OA.hasTarget, nil]
+      q = [nil, OA.hasTarget, nil]
       @graph.query(q).collect {|s| s.object }
     end
 
@@ -72,12 +81,12 @@ module Annotations2triannon
 
     def insert_hasBody(body)
       # TODO: raise ValueError when body is outside hasBody range?
-      @graph.insert([@id, RDF::OA.hasBody, body])
+      @graph.insert([@id, OA.hasBody, body])
     end
 
     # @return [Array] The hasBody object(s)
     def hasBody
-      q = [nil, RDF::OA.hasBody, nil]
+      q = [nil, OA.hasBody, nil]
       @graph.query(q).collect {|s| s.object }
     end
 
@@ -90,7 +99,7 @@ module Annotations2triannon
     def body_chars
       result = []
       q = RDF::Query.new
-      q << [nil, RDF::OA.hasBody, :body]
+      q << [nil, OA.hasBody, :body]
       q << [:body, RDF.type, RDF::Content.ContentAsText]
       q << [:body, RDF::Content.chars, :body_chars]
       solns = @graph.query q
@@ -100,33 +109,33 @@ module Annotations2triannon
       result
     end
 
-    def insert_motivatedBy(motivation=RDF::OA.commenting)
-      @graph.insert([@id, RDF::OA.motivatedBy, motivation])
+    def insert_motivatedBy(motivation=OA.commenting)
+      @graph.insert([@id, OA.motivatedBy, motivation])
     end
 
     # @return [Array] The motivatedBy object(s)
     def motivatedBy
-      q = [nil, RDF::OA.motivatedBy, nil]
+      q = [nil, OA.motivatedBy, nil]
       @graph.query(q).collect {|s| s.object }
     end
 
     def insert_annotatedBy(annotator=nil)
-      @graph.insert([@id, RDF::OA.annotatedBy, annotator])
+      @graph.insert([@id, OA.annotatedBy, annotator])
     end
 
     # @return [Array<String>|nil] The identity for the annotatedBy object(s)
     def annotatedBy
-      q = [:s, RDF::OA.annotatedBy, :o]
+      q = [:s, OA.annotatedBy, :o]
       @graph.query(q).collect {|s| s.object }
     end
 
     def insert_annotatedAt(datetime=rdf_now)
-      @graph.insert([@id, RDF::OA.annotatedAt, datetime])
+      @graph.insert([@id, OA.annotatedAt, datetime])
     end
 
     # @return [Array<String>|nil] The datetime from the annotatedAt object(s)
     def annotatedAt
-      q = [nil, RDF::OA.annotatedAt, nil]
+      q = [nil, OA.annotatedAt, nil]
       @graph.query(q).collect {|s| s.object }
     end
 
@@ -139,9 +148,9 @@ module Annotations2triannon
       # When adding the agent, ensure it's not there already, also
       # an open annotation cannot have more than one oa:serializedAt.
       @graph.delete([nil,nil,@@agent])
-      @graph.delete([nil, RDF::OA.serializedAt, nil])
-      @graph << [@id, RDF::OA.serializedAt, rdf_now]
-      @graph << [@id, RDF::OA.serializedBy, @@agent]
+      @graph.delete([nil, OA.serializedAt, nil])
+      @graph << [@id, OA.serializedAt, rdf_now]
+      @graph << [@id, OA.serializedBy, @@agent]
     end
 
     # A json-ld representation of the open annotation
@@ -165,10 +174,6 @@ module Annotations2triannon
     # TODO: try using the code at
     # https://github.com/sul-dlss/triannon/blob/master/lib/triannon/graph.rb#L36-50
 
-    # OA_CONTEXT_URL = "http://www.w3.org/ns/oa.jsonld"
-    # OA_DATED_CONTEXT_URL = "http://www.w3.org/ns/oa-context-20130208.json"
-    # IIIF_CONTEXT_URL = "http://iiif.io/api/presentation/2/context.json"
-
     # # @return json-ld representation of graph with OpenAnnotation context as a url
     # def jsonld_oa
     #   inline_context = @graph.dump(:jsonld, :context => Triannon::JsonldContext::OA_CONTEXT_URL)
@@ -188,22 +193,6 @@ module Annotations2triannon
     #   hash_from_json.to_json
     # end
 
-
-    # RDF query to find all objects of a predicate
-    # @param predicate [RDF::URI] An RDF predicate, the ?p in ?s ?p ?o
-    # @return [Array] The objects of predicate, the ?o in ?s ?p ?o
-    def query_predicate_objects(predicate)
-      q = [:s, predicate, :o]
-      rdf.query(q).collect {|s| s[:o] }
-    end
-
-    # RDF query to find all subjects with a predicate
-    # @param predicate [RDF::URI] An RDF predicate, the ?p in ?s ?p ?o
-    # @return [Array] The subjects with predicate, the ?s in ?s ?p ?o
-    def query_predicate_subjects(predicate)
-      q = [:s, predicate, :o]
-      rdf.query(q).collect {|s| s[:s] }
-    end
 
   end
 

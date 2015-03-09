@@ -12,7 +12,7 @@ require 'uuid'
 
 require 'linkeddata'
 require 'rdf/iiif'
-require_relative 'rdf/vocab/oa.rb'
+require 'rdf-vocab'
 require_relative 'rdf/vocab/sc.rb'
 
 require_relative 'open_annotation_harvest'

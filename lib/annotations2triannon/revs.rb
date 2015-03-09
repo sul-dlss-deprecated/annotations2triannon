@@ -163,10 +163,10 @@ module Annotations2triannon
         end
         revs_img_graph = RDF::Graph.new
         # revs_img_node = RDF::Node.new(revs_img_uri)
-        # revs_img_graph.insert([revs_img_node, RDF.type, RDF::OA.SpecificResource])
-        # revs_img_graph.insert([revs_img_node, RDF::OA.hasSource, revs_img_uri])
-        revs_img_graph.insert([revs_uri, RDF.type, RDF::OA.SpecificResource])
-        revs_img_graph.insert([revs_uri, RDF::OA.hasSource, revs_img_uri])
+        # revs_img_graph.insert([revs_img_node, RDF.type, RDF::Vocab::OA.SpecificResource])
+        # revs_img_graph.insert([revs_img_node, RDF::Vocab::OA.hasSource, revs_img_uri])
+        revs_img_graph.insert([revs_uri, RDF.type, RDF::Vocab::OA.SpecificResource])
+        revs_img_graph.insert([revs_uri, RDF::Vocab::OA.hasSource, revs_img_uri])
         revs_img_graph.insert([revs_img_uri, RDF.type, RDF::DCMIType.Image])
         # Note: it's most likely there is only one fragment in a REVS annotation.
         revs_fragment_graphs = []
@@ -178,14 +178,14 @@ module Annotations2triannon
           f_graph = RDF::Graph.new
           # avoid creation of blank nodes?
           # f_node = RDF::Node.new(f_uri)
-          # f_graph.insert([f_node, RDF.type, RDF::OA.FragmentSelector])
+          # f_graph.insert([f_node, RDF.type, RDF::Vocab::OA.FragmentSelector])
           # f_graph.insert([f_node, RDF::DC.conformsTo, RDF::MA.MediaFragment])
           # f_graph.insert([f_node, RDF.value, RDF::Literal.new(f)])
-          # revs_img_graph.insert([revs_img_node, RDF::OA.hasSelector, f_node])
-          f_graph.insert([f_uri, RDF.type, RDF::OA.FragmentSelector])
+          # revs_img_graph.insert([revs_img_node, RDF::Vocab::OA.hasSelector, f_node])
+          f_graph.insert([f_uri, RDF.type, RDF::Vocab::OA.FragmentSelector])
           f_graph.insert([f_uri, RDF::DC.conformsTo, RDF::MA.MediaFragment])
           f_graph.insert([f_uri, RDF.value, RDF::Literal.new(f)])
-          revs_img_graph.insert([revs_uri, RDF::OA.hasSelector, f_uri])
+          revs_img_graph.insert([revs_uri, RDF::Vocab::OA.hasSelector, f_uri])
           revs_fragment_graphs << f_graph
         end
 

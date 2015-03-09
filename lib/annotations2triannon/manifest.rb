@@ -58,7 +58,7 @@ module Annotations2triannon
 
     def collect_open_annotations
       oa_graphs = []
-      q = [nil, RDF.type, RDF::OA.Annotation]
+      q = [nil, RDF.type, RDF::Vocab::OA.Annotation]
       rdf.query(q).each_subject do |subject|
         g = RDF::Graph.new
         rdf.query([subject, nil, nil]) do |s,p,o|

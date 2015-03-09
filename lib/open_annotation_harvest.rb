@@ -1,14 +1,14 @@
 require 'rdf'
-require_relative 'rdf/vocab/oa'
+require 'rdf-vocab'
 
 # Module designed to be a mixin for manifest and annotation list.
 module OpenAnnotationHarvest
 
-  # @param rdf [RDF::Graph] a graph to search for RDF::OA.Annotation
-  # @return [Array<RDF::Graph>] for graphs of type RDF::OA.Annotation
+  # @param rdf [RDF::Graph] a graph to search for RDF::Vocab::OA.Annotation
+  # @return [Array<RDF::Graph>] for graphs of type RDF::Vocab::OA.Annotation
   def collect_open_annotations(rdf)
     oa_graphs = []
-    q = [nil, RDF.type, RDF::OA.Annotation]
+    q = [nil, RDF.type, RDF::Vocab::OA.Annotation]
     rdf.query(q).each_subject do |subject|
       g = RDF::Graph.new
       rdf.query([subject, nil, nil]) do |s,p,o|

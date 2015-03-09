@@ -47,10 +47,19 @@ open_annotations.each_pair do |manifest,alists|
   end
 end
 
+manifest_key = open_annotations.keys.sample(1).first
+anno_list_key = open_annotations[manifest_key].keys.sample(1).first
+anno_list = open_annotations[manifest_key][anno_list_key]
+
+open_annos = anno_list.collect {|oa| Annotations2triannon::OpenAnnotation.new(oa) }
+open_anno = open_annos.sample(1).first
+puts open_anno.to_ttl
+
+open_anno.is_annotation?
+open_anno.open_annotation?
 
 
 binding.pry
-
 
 # to clarify the scope -- only annotations where the body is text, and not where the body is an image.
 
