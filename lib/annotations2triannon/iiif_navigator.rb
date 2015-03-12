@@ -103,20 +103,17 @@ module Annotations2triannon
 
     # @return annotation_lists [Array] generic annotation lists
     def annotation_lists
-      return @annotation_lists unless @annotation_lists.nil?
-      @annotation_lists = collect_annotation_lists(manifests)
+      @annotation_lists ||= collect_annotation_lists(manifests)
     end
 
     # @return iiif_annotation_lists [Array] IIIF Presentation annotation lists
     def iiif_annotation_lists
-      return @iiif_annotation_lists unless @iiif_annotation_lists.nil?
-      @iiif_annotation_lists = collect_annotation_lists(iiif_manifests)
+      @iiif_annotation_lists ||= collect_annotation_lists(iiif_manifests)
     end
 
     # @return sc_annotation_lists [Array] Shared Canvas annotation lists
     def sc_annotation_lists
-      return @sc_annotation_lists unless @sc_annotation_lists.nil?
-      @sc_annotation_lists = collect_annotation_lists(sc_manifests)
+      @sc_annotation_lists ||= collect_annotation_lists(sc_manifests)
     end
 
 
