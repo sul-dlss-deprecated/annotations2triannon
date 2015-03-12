@@ -42,8 +42,10 @@ require 'rdf/iiif'
 require 'rdf-vocab'
 require_relative 'rdf/vocab/sc.rb'
 
-require_relative 'open_annotation_harvest'
+# OpenAnnotationHarvest module (standalone module for includes)
+require_relative 'annotations2triannon/open_annotation_harvest'
 
+# Annotations2triannon module
 require_relative 'annotations2triannon/configuration'
 require_relative 'annotations2triannon/resource'
 require_relative 'annotations2triannon/manifest'
@@ -55,9 +57,7 @@ require_relative 'annotations2triannon/shared_canvas_manifest'
 require_relative 'annotations2triannon/shared_canvas_annotation_list'
 require_relative 'annotations2triannon/open_annotation'
 require_relative 'annotations2triannon/triannon_client'
-
 require_relative 'annotations2triannon/iiif_navigator'
-
 
 if ENV['REVS_ENABLED'].to_s.upcase == 'TRUE'
   require_relative 'annotations2triannon/revs'
