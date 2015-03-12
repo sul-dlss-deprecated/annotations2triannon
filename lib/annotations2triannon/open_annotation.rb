@@ -156,7 +156,7 @@ module Annotations2triannon
     # A json-ld representation of the open annotation
     def as_jsonld
       provenance
-      JSON::LD::API::fromRdf(@graph)
+      JSON::LD::API::fromRDF(@graph)
     end
 
     # A json-ld string representation of the open annotation
