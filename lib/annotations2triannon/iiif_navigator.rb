@@ -3,6 +3,8 @@ module Annotations2triannon
 
   class IIIFNavigator
 
+    @@config = nil
+
     attr_accessor :collection
     attr_accessor :manifests
     attr_accessor :annotation_lists
@@ -20,6 +22,7 @@ module Annotations2triannon
 
     # @param collection_uri [URI|String] an HTTP URI for a collection
     def initialize(collection_uri)
+      @@config ||= Annotations2triannon.configuration
       @uri = RDF::URI.parse(collection_uri)
       @collection = nil
       @manifests = nil
