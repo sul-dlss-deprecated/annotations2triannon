@@ -17,10 +17,11 @@ if ENV['RACK_CACHE_ENABLED'].to_s.upcase == 'TRUE'
   # Enable the HTTP cache to store meta and entity data according
   # to the env config values or the defaults given here.  See
   # http://rtomayko.github.io/rack-cache/configuration for available options.
+  metastore = ENV['RACK_CACHE_METASTORE'] || 'file:/tmp/cache/meta'
+  entitystore = ENV['RACK_CACHE_ENTITYSTORE'] || 'file:/tmp/cache/body'
+  verbose = ENV['RACK_CACHE_VERBOSE'].to_s.upcase == 'TRUE' || false
   RestClient.enable Rack::Cache,
-  :verbose => ENV['RACK_CACHE_VERBOSE'] || false,
-  :metastore => ENV['RACK_CACHE_METASTORE'] || 'file:/tmp/cache/meta',
-  :entitystore => ENV['RACK_CACHE_ENTITYSTORE'] || 'file:/tmp/cache/body'
+    :metastore => metastore, :entitystore => entitystore, :verbose => verbose
   # Prime the HTTP cache with some common json-ld contexts used for
   # IIIF and open annotations.
   contexts = [
