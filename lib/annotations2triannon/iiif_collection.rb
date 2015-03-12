@@ -14,27 +14,33 @@ module Annotations2triannon
     def manifests
       return @manifests unless @manifests.nil?
       manifests = []
-      manifests.push(* rdf.query(query_sc_manifests).collect   {|s| s.subject })
-      manifests.push(* rdf.query(query_iiif_manifests).collect {|s| s.subject })
+      manifests.push(* manifest_uris(query_iiif_manifests))
+      manifests.push(* manifest_uris(query_sc_manifests))
       @manifests = manifests.collect {|m| Annotations2triannon::Manifest.new(m)}
     end
 
     def sc_manifests
       return @sc_manifests unless @sc_manifests.nil?
-      @sc_manifests = rdf.query(query_sc_manifests).collect do |s|
+      @sc_manifests = manifest_uris(query_sc_manifests).collect do |s|
         Annotations2triannon::SharedCanvasManifest.new(s.subject)
       end
     end
 
     def iiif_manifests
       return @iiif_manifests unless @iiif_manifests.nil?
-      @iiif_manifests = rdf.query(query_iiif_manifests).collect do |s|
+      @iiif_manifests = manifest_uris(query_iiif_manifests).collect do |s|
         Annotations2triannon::IIIFManifest.new(s.subject)
       end
     end
 
 
     private
+
+    def manifest_uris(q)
+      uris = rdf.query(q).collect {|s| s.subject }
+      uris = uris.sample(@@config.limit_manifests) if @@config.limit_manifests > 0
+      uris
+    end
 
     def query_iiif_manifests
       [nil, RDF.type, RDF::IIIFPresentation.Manifest]

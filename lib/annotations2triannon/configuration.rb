@@ -6,11 +6,20 @@ module Annotations2triannon
     attr_accessor :debug
     attr_accessor :logger
 
+    attr_reader :limit_manifests
+    attr_reader :limit_annolists
+    attr_reader :limit_openannos
+
     def initialize
       @debug = env_boolean('DEBUG')
 
+      # In development, enable options for random sampling the data
+      @limit_manifests = ENV['ANNO_LIMIT_MANIFESTS'].to_i  # 0 disables sampling
+      @limit_annolists = ENV['ANNO_LIMIT_ANNOLISTS'].to_i  # 0 disables sampling
+      @limit_openannos = ENV['ANNO_LIMIT_OPENANNOS'].to_i  # 0 disables sampling
+
       # logger
-      log_file = ENV['LOG_FILE'] || 'annotations2triannon.log'
+      log_file = ENV['ANNO_LOG_FILE'] || 'annotations2triannon.log'
       log_file = File.absolute_path log_file
       @log_file = log_file
       log_path = File.dirname log_file
