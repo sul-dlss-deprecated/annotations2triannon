@@ -94,19 +94,25 @@ module Annotations2triannon
       hasBody.length > 0
     end
 
-    # For all bodies that are of type ContentAsText, get the characters as a single String in the returned Array.
-    # @return [Array<String>] body chars as Strings, in an Array (one element for each contentAsText body)
-    def body_chars
-      result = []
+    def body_contentAsText
       q = RDF::Query.new
       q << [nil, OA.hasBody, :body]
-      q << [:body, RDF.type, RDF::Content.ContentAsText]
-      q << [:body, RDF::Content.chars, :body_chars]
-      solns = @graph.query q
-      solns.each { |soln|
-        result << soln.body_chars.value
-      }
-      result
+      q << [:body, RDF.type, RDF::CONTENT.ContentAsText]
+      @graph.query(q)
+    end
+
+    def body_contentAsText?
+      body_contentAsText.size > 0
+    end
+
+    # For all bodies that are of type ContentAsText, get the characters as a single String in the returned Array.
+    # @return [Array<String>] body chars as Strings, in an Array (one element for each contentAsText body)
+    def body_contentChars
+      q = RDF::Query.new
+      q << [nil, OA.hasBody, :body]
+      q << [:body, RDF.type, RDF::CONTENT.ContentAsText]
+      q << [:body, RDF::CONTENT.chars, :body_chars]
+      @graph.query(q).collect {|s| s.body_chars.value }
     end
 
     def insert_motivatedBy(motivation=OA.commenting)
