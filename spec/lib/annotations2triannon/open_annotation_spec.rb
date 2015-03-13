@@ -29,11 +29,50 @@ describe Annotations2triannon::OpenAnnotation do
     Annotations2triannon::OpenAnnotation.new RDF::Graph.new.from_jsonld(
       '{
         "@context": "http://www.w3.org/ns/oa-context-20130208.json",
-        "@id": "http://my.identifiers.com/oa_bookmark",
-        "@type": "oa:Annotation",
-        "hasTarget": "http://purl.stanford.edu/kq131cs7229"
+        "@id": "http://my.identifiers.com/oa_empty",
+        "@type": "oa:Annotation"
       }' )
   }
+
+
+  context '#hasBody' do
+    it 'returns an array' do
+      expect(g1.hasBody).to be_a Array
+      expect(g1.hasBody).not_to be_empty
+      expect(g2.hasBody).to be_a Array
+      expect(g2.hasBody).to be_empty
+      expect(g3.hasBody).to be_a Array
+      expect(g3.hasBody).to be_empty
+    end
+  end
+
+  context '#hasBody?' do
+    it 'returns a boolean' do
+      expect(g1.hasBody?).to be_truthy
+      expect(g2.hasBody?).to be_falsy  # note g1 and g2 are truthy here
+      expect(g3.hasBody?).to be_falsy
+    end
+  end
+
+  context '#hasTarget' do
+    it 'returns an array' do
+      expect(g1.hasTarget).to be_a Array
+      expect(g1.hasTarget).not_to be_empty
+      expect(g2.hasTarget).to be_a Array
+      expect(g2.hasTarget).not_to be_empty
+      expect(g3.hasTarget).to be_a Array
+      expect(g3.hasTarget).to be_empty
+    end
+  end
+
+  context '#hasTarget?' do
+    it 'returns a boolean' do
+      expect(g1.hasTarget?).to be_truthy
+      expect(g2.hasTarget?).to be_truthy
+      expect(g3.hasTarget?).to be_falsy
+    end
+  end
+
 
   context '#motivatedBy' do
     it 'returns an array' do
@@ -67,6 +106,22 @@ describe Annotations2triannon::OpenAnnotation do
       expect(g1.motivatedBy? uri).to be_truthy
       expect(g2.motivatedBy? uri).to be_falsy  # note g1 and g2 differ here
       expect(g3.motivatedBy? uri).to be_falsy
+    end
+  end
+
+  context '#open_annotation?' do
+    it 'returns a boolean' do
+      expect(g1.open_annotation?).to be_truthy
+      expect(g2.open_annotation?).to be_falsy  # note g1 and g2 are truthy here
+      expect(g3.open_annotation?).to be_falsy
+    end
+  end
+
+  context '#is_annotation?' do
+    it 'returns a boolean' do
+      expect(g1.is_annotation?).to be_truthy
+      expect(g2.is_annotation?).to be_truthy
+      expect(g3.is_annotation?).to be_truthy
     end
   end
 
