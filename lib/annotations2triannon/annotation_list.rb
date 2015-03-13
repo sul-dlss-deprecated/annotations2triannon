@@ -24,7 +24,7 @@ module Annotations2triannon
       begin
         oa_graphs = collect_open_annotations(rdf)
         oa_graphs = oa_graphs.sample(@@config.limit_openannos) if @@config.limit_openannos > 0
-        oa_graphs
+        oa_graphs.collect {|oa| Annotations2triannon::OpenAnnotation.new(oa)}
       rescue => e
         binding.pry if @@config.debug
         @@config.logger.error(e.message)
