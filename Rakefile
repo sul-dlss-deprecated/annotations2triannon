@@ -13,11 +13,11 @@ task :specs => :spec
 # Derived from https://raw.githubusercontent.com/ruby-rdf/rdf/develop/Rakefile
 desc "Generate Vocabularies"
 vocab_sources = {
-  oa:  {
-    uri: 'http://www.w3.org/ns/oa#',
-    source: 'http://www.openannotation.org/spec/core/20130208/oa.owl',
-    strict: true
-  },
+  #oa:  {
+  #  uri: 'http://www.w3.org/ns/oa#',
+  #  source: 'http://www.openannotation.org/spec/core/20130208/oa.owl',
+  #  strict: true
+  #},
 }
 
 task :gen_vocabs => vocab_sources.keys.map {|v| "lib/rdf/vocab/#{v}.rb"}
