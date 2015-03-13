@@ -119,11 +119,11 @@ module Annotations2triannon
       @graph.query(q).collect {|s| s.object }
     end
 
-    # @param motivation_uri [URI] Anything compatible with RDF::URI.parse()
-    # @return [Array] The motivatedBy object(s)
-    def motivatedBy?(motivation_uri=nil)
-      motivation_uri = RDF::URI.parse(motivation_uri) rescue nil
-      q = [nil, OA.motivatedBy, motivation_uri]
+    # @param uri [RDF::URI|String|nil] Any object of a motivatedBy predicate
+    # @return [boolean] True if the open annotation has any motivatedBy 'uri'
+    def motivatedBy?(uri=nil)
+      uri = RDF::URI.parse(uri) unless uri.nil?
+      q = [nil, OA.motivatedBy, uri]
       @graph.query(q).size > 0
     end
 
