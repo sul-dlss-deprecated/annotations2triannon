@@ -137,6 +137,14 @@ module Annotations2triannon
       @graph.query(q).collect {|s| s.object }
     end
 
+    # @param uri [RDF::URI|String|nil] Any object of an annotatedBy predicate
+    # @return [boolean] True if the open annotation has any annotatedBy 'uri'
+    def annotatedBy?(uri=nil)
+      uri = RDF::URI.parse(uri) unless uri.nil?
+      q = [nil, OA.annotatedBy, uri]
+      @graph.query(q).size > 0
+    end
+
     def insert_annotatedAt(datetime=rdf_now)
       @graph.insert([@id, OA.annotatedAt, datetime])
     end

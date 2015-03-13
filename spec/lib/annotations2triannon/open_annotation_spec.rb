@@ -11,7 +11,8 @@ describe Annotations2triannon::OpenAnnotation do
       <http://www.w3.org/2011/content#chars> \"I love this!\"
       ];
       <http://www.w3.org/ns/oa#hasTarget> <http://purl.stanford.edu/kq131cs7229>;
-      <http://www.w3.org/ns/oa#motivatedBy> <http://www.w3.org/ns/oa#commenting> . ")
+      <http://www.w3.org/ns/oa#motivatedBy> <http://www.w3.org/ns/oa#commenting> ;
+      <http://www.w3.org/ns/oa#annotatedBy> <http://my.identifiers.com/contributor> . ")
   }
 
   let(:g2) {
@@ -34,6 +35,42 @@ describe Annotations2triannon::OpenAnnotation do
       }' )
   }
 
+  context '#annotatedBy' do
+    it 'returns an array' do
+      expect(g1.annotatedBy).to be_a Array
+      expect(g1.annotatedBy).not_to be_empty
+      expect(g3.annotatedBy).to be_a Array
+      expect(g3.annotatedBy).to be_empty
+    end
+  end
+
+  context '#annotatedBy?' do
+    it 'returns a boolean' do
+      expect(g1.annotatedBy?).to be_truthy
+      expect(g2.annotatedBy?).to be_falsy
+      expect(g3.annotatedBy?).to be_falsy
+    end
+    it 'accepts a string URI' do
+      uri = 'http://my.identifiers.com/contributor'
+      expect(g1.annotatedBy? uri).to be_truthy
+      expect(g2.annotatedBy? uri).to be_falsy
+      expect(g3.annotatedBy? uri).to be_falsy
+    end
+    it 'accepts an Addressable::URI' do
+      uri = 'http://my.identifiers.com/contributor'
+      uri = Addressable::URI.parse(uri)
+      expect(g1.annotatedBy? uri).to be_truthy
+      expect(g2.annotatedBy? uri).to be_falsy
+      expect(g3.annotatedBy? uri).to be_falsy
+    end
+    it 'accepts an RDF::URI' do
+      uri = 'http://my.identifiers.com/contributor'
+      uri = RDF::URI.parse(uri)
+      expect(g1.annotatedBy? uri).to be_truthy
+      expect(g2.annotatedBy? uri).to be_falsy
+      expect(g3.annotatedBy? uri).to be_falsy
+    end
+  end
 
   context '#hasBody' do
     it 'returns an array' do
@@ -72,7 +109,6 @@ describe Annotations2triannon::OpenAnnotation do
       expect(g3.hasTarget?).to be_falsy
     end
   end
-
 
   context '#motivatedBy' do
     it 'returns an array' do
