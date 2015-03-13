@@ -155,9 +155,9 @@ module Annotations2triannon
 
     private
 
-    def collect_annotation_lists(manifest_arr)
+    def collect_annotation_lists(manifests)
       anno_lists = {}
-      manifest_arr.collect {|m| anno_lists[m.iri.to_s] = m.annotation_lists }
+      manifests.collect {|m| anno_lists[m.iri.to_s] = m.annotation_lists }
       anno_lists
     end
 
