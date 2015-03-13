@@ -18,6 +18,11 @@ vocab_sources = {
   #  source: 'http://www.openannotation.org/spec/core/20130208/oa.owl',
   #  strict: true
   #},
+  Content: {
+    uri: 'http://www.w3.org/2011/content#',
+    source: 'http://www.w3.org/2011/content',
+    strict: true
+  },
 }
 
 task :gen_vocabs => vocab_sources.keys.map {|v| "lib/rdf/vocab/#{v}.rb"}
