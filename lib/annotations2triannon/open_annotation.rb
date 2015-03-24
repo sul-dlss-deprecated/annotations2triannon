@@ -6,11 +6,8 @@ module Annotations2triannon
   class OpenAnnotation
 
     OA = RDF::Vocab::OA
-    OA_ROOT_URL = 'http://www.w3.org/ns/oa'
-    CONTEXT_OA_URL = OA_ROOT_URL + '.jsonld'
-    CONTEXT_OA_DATED_URL = OA_ROOT_URL + '-context-20130208.json'
-    IIIF_ROOT_URL = 'http://iiif.io/api/presentation/2/'
-    CONTEXT_IIIF_URL = IIIF_ROOT_URL + 'context.json'
+    OA_CONTEXT = 'http://www.w3.org/ns/oa.jsonld'
+    IIIF_CONTEXT = 'http://iiif.io/api/presentation/2/context.json'
 
     attr_accessor :id
     attr_accessor :graph # an RDF::Graph
@@ -95,10 +92,7 @@ module Annotations2triannon
     end
 
     def body_contentAsText
-      q = RDF::Query.new
-      q << [nil, OA.hasBody, :body]
-      q << [:body, RDF.type, RDF::CONTENT.ContentAsText]
-      @graph.query(q)
+      body_type RDF::CONTENT.ContentAsText
     end
 
     def body_contentAsText?
@@ -115,22 +109,76 @@ module Annotations2triannon
       @graph.query(q).collect {|s| s.body_chars.value }
     end
 
-    def insert_motivatedBy(motivation=OA.commenting)
+    def body_semanticTag
+      body_type OA.SemanticTag
+    end
+
+    def body_semanticTag?
+      body_semanticTag.size > 0
+    end
+
+    def body_type(uri=nil)
+      uri = RDF::URI.parse(uri) unless uri.nil?
+      q = RDF::Query.new
+      q << [nil, OA.hasBody, :body]
+      q << [:body, RDF.type, uri]
+      @graph.query(q)
+    end
+
+    # Insert an ?o for [id, OA.motivatedBy, ?o] where ?o is 'motivation'
+    # @param motivation [String|URI] An open annotation motivation
+    def insert_motivatedBy(motivation)
+      # TODO: only accept values allowed by OA.motivationBy range?
+      motivation = RDF::URI.parse(motivation)
       @graph.insert([@id, OA.motivatedBy, motivation])
     end
 
+    # Find any matching ?o for ?s OA.motivatedBy ?o where ?o is 'uri'
+    # @param uri [RDF::URI|String|nil] Any object of a motivatedBy predicate
     # @return [Array] The motivatedBy object(s)
-    def motivatedBy
-      q = [nil, OA.motivatedBy, nil]
+    def motivatedBy(uri=nil)
+      uri = RDF::URI.parse(uri) unless uri.nil?
+      q = [nil, OA.motivatedBy, uri]
       @graph.query(q).collect {|s| s.object }
     end
 
+    # Are there any matching ?o for [?s, OA.motivatedBy, ?o] where ?o is 'uri'
     # @param uri [RDF::URI|String|nil] Any object of a motivatedBy predicate
     # @return [boolean] True if the open annotation has any motivatedBy 'uri'
     def motivatedBy?(uri=nil)
-      uri = RDF::URI.parse(uri) unless uri.nil?
-      q = [nil, OA.motivatedBy, uri]
-      @graph.query(q).size > 0
+      motivatedBy(uri).length > 0
+    end
+
+    # Insert [id, OA.motivatedBy, OA.commenting]
+    def insert_motivatedByCommenting
+      insert_motivatedBy OA.commenting
+    end
+
+    # Find all the matching ?s for [?s, OA.motivatedBy, OA.commenting]
+    def motivatedByCommenting
+      q = [nil, OA.motivatedBy, OA.commenting]
+      @graph.query(q).collect {|s| s.subject }
+    end
+
+    # Are there any matching ?s for [?s, OA.motivatedBy, OA.commenting]
+    def motivatedByCommenting?
+      motivatedByCommenting.length > 0
+    end
+
+    # Insert [id, OA.motivatedBy, OA.tagging]
+    def insert_motivatedByTagging
+      insert_motivatedBy OA.tagging
+    end
+
+    # Find all the matching ?s for [?s, OA.motivatedBy, OA.tagging]
+    def motivatedByTagging
+      q = [nil, OA.motivatedBy, OA.tagging]
+      @graph.query(q).collect {|s| s.subject }
+    end
+
+    # Are there any matching ?s for [?s, OA.motivatedBy, OA.tagging]
+    def motivatedByTagging?
+      motivatedByTagging.length > 0
     end
 
     def insert_annotatedBy(annotator=nil)
@@ -181,10 +229,25 @@ module Annotations2triannon
       JSON::LD::API::fromRDF(@graph)
     end
 
-    # A json-ld string representation of the open annotation
-    def to_jsonld
+    # @param context [String] A JSON-LD context URI
+    # @return json-ld representation of graph with default context
+    def to_jsonld(context=nil)
       provenance
-      @graph.dump(:jsonld, standard_prefixes: true)
+      if context.nil?
+        @graph.dump(:jsonld, standard_prefixes: true)
+      else
+        @graph.dump(:jsonld, standard_prefixes: true, context: context)
+      end
+    end
+
+    # @return json-ld representation of graph with IIIF context
+    def to_jsonld_iiif
+      to_jsonld IIIF_CONTEXT
+    end
+
+    # @return json-ld representation of graph with OpenAnnotation context
+    def to_jsonld_oa
+      to_jsonld OA_CONTEXT
     end
 
     # A turtle string representation of the open annotation
@@ -192,29 +255,6 @@ module Annotations2triannon
       provenance
       @graph.dump(:ttl, standard_prefixes: true)
     end
-
-    # TODO: try using the code at
-    # https://github.com/sul-dlss/triannon/blob/master/lib/triannon/graph.rb#L36-50
-
-    # # @return json-ld representation of graph with OpenAnnotation context as a url
-    # def jsonld_oa
-    #   inline_context = @graph.dump(:jsonld, :context => Triannon::JsonldContext::OA_CONTEXT_URL)
-    #   hash_from_json = JSON.parse(inline_context)
-    #   hash_from_json["@context"] = Triannon::JsonldContext::OA_CONTEXT_URL
-    #   hash_from_json.to_json
-    #
-    #   # TODO: return from json to graph?
-    #   #RDF::Graph.new << JSON::LD::API.toRdf(input)
-    # end
-    #
-    # # @return json-ld representation of graph with IIIF context as a url
-    # def jsonld_iiif
-    #   inline_context = @graph.dump(:jsonld, :context => Triannon::JsonldContext::IIIF_CONTEXT_URL)
-    #   hash_from_json = JSON.parse(inline_context)
-    #   hash_from_json["@context"] = Triannon::JsonldContext::IIIF_CONTEXT_URL
-    #   hash_from_json.to_json
-    # end
-
 
   end
 

@@ -138,13 +138,6 @@ module Annotations2triannon
     end
 
 
-    # TODO: convert IIIF annotations into OA.
-    #
-    # Mapping a IIF annotation into an Open Annotation
-    #
-    # def iiif2oa(iiif_annotation)
-    # end
-
     # def oa2triannon
     #
     #   # TODO:   - post the open_annotation to triannon-app
