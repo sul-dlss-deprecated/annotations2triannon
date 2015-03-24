@@ -8,6 +8,7 @@ require 'ruby-progressbar'
 # Using rest-client with options to enable
 # a client HTTP cache
 require 'rest-client'
+RestClient.proxy =ENV['http_proxy'] unless ENV['http_proxy'].nil?
 if ENV['RACK_CACHE_ENABLED'].to_s.upcase == 'TRUE'
   require 'dalli'
   require 'restclient/components'
