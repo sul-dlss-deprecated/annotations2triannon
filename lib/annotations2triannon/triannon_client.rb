@@ -3,44 +3,47 @@ module Annotations2triannon
 
   class TriannonClient
 
+    @@config = nil
     @@log = Logger.new('log/triannon.log')
 
     attr_accessor :site
 
     def initialize
       # Configure triannon-app service
+      @@config ||= Annotations2triannon.configuration
       @config = {}
-      @config['host'] = ENV['TRIANNON_HOST'] || 'localhost'
+      @config['host'] = ENV['TRIANNON_HOST'] || 'http://localhost:3000'
       @config['user'] = ENV['TRIANNON_USER'] || ''
       @config['pass'] = ENV['TRIANNON_PASS'] || ''
-      auth_str = ''
-      unless @config['user'].empty?
-        auth_str += @config['user']
-        auth_str += ":#{@config['pass']}" unless @config['pass'].empty?
-      end
-      uri = 'http://'
-      uri += "#{auth_str}@" if auth_str.length > 1
-      uri += @config['host']
-      @site = RestClient::Resource.new(uri)
+      @site = RestClient::Resource.new(
+        @config['host'],
+        :user => @config['user'],
+        :password => @config['pass'],
+        :open_timeout => 5,  #seconds
+        :read_timeout => 20, #seconds
+      )
     end
 
-    # Example open annotation post data, from:
-    # https://github.com/sul-dlss/triannon/blob/master/spec/fixtures/annotations/body-chars.ttl
-    #
-    # <> a <http://www.w3.org/ns/oa#Annotation>;
-    # <http://www.w3.org/ns/oa#hasBody> [
-    # a <http://www.w3.org/2011/content#ContentAsText>,
-    # <http://purl.org/dc/dcmitype/Text>;
-    # <http://www.w3.org/2011/content#chars> "I love this!"
-    # ];
-    # <http://www.w3.org/ns/oa#hasTarget> <http://purl.stanford.edu/kq131cs7229>;
-    # <http://www.w3.org/ns/oa#motivatedBy> <http://www.w3.org/ns/oa#commenting> .
-
     def post_annotation(oa)
-      response = @site["/annotations/new"].post oa.to_jsonld, :content_type => :json
-      # TODO: check response.code
-      # TODO: add retry block?
-      # TODO: log.debug on success; log.error on errors
+      post_data = {
+        "commit" => "Create Annotation",
+        "annotation" => { "data" => oa.to_jsonld_oa }
+      }
+      response = nil
+      tries = 0
+      begin
+        tries += 1
+        response = @site["/annotations/"].post post_data, :content_type => :json
+      rescue
+        sleep 1*tries
+        retry if tries < 3
+        binding.pry if @@config.debug
+      end
+      if response.nil? || response.code != 201
+        @@config.logger.error("Failed to POST to triannon:annotations/")
+      else
+        @@config.logger.info("Success: POST to triannon:annotations/")
+      end
     end
 
     # GET annotations and annotation
