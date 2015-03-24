@@ -111,37 +111,49 @@ describe Annotations2triannon::OpenAnnotation do
   end
 
   context '#motivatedBy' do
+    uri = 'http://www.w3.org/ns/oa#commenting'
+    def expect_motivatedBy(uri)
+      expect(g1.motivatedBy uri).not_to be_empty
+      expect(g2.motivatedBy uri).to be_empty  # note g1 and g2 differ here
+      expect(g3.motivatedBy uri).to be_empty
+    end
     it 'returns an array' do
       expect(g1.motivatedBy).to be_a Array
       expect(g1.motivatedBy).not_to be_empty
       expect(g3.motivatedBy).to be_a Array
       expect(g3.motivatedBy).to be_empty
     end
+    it 'accepts a string URI' do
+      expect_motivatedBy uri
+    end
+    it 'accepts an Addressable::URI' do
+      expect_motivatedBy Addressable::URI.parse(uri)
+    end
+    it 'accepts an RDF::URI' do
+      expect_motivatedBy RDF::URI.parse(uri)
+    end
   end
 
   context '#motivatedBy?' do
+    uri = 'http://www.w3.org/ns/oa#commenting'
+    def expect_motivatedBy?(uri)
+      expect(g1.motivatedBy? uri).to be_truthy
+      expect(g2.motivatedBy? uri).to be_falsy  # note g1 and g2 differ here
+      expect(g3.motivatedBy? uri).to be_falsy
+    end
     it 'returns a boolean' do
       expect(g1.motivatedBy?).to be_truthy
       expect(g2.motivatedBy?).to be_truthy  # note g1 and g2 are truthy here
       expect(g3.motivatedBy?).to be_falsy
     end
     it 'accepts a string URI' do
-      uri = 'http://www.w3.org/ns/oa#commenting'
-      expect(g1.motivatedBy? uri).to be_truthy
-      expect(g2.motivatedBy? uri).to be_falsy  # note g1 and g2 differ here
-      expect(g3.motivatedBy? uri).to be_falsy
+      expect_motivatedBy? uri
     end
     it 'accepts an Addressable::URI' do
-      uri = Addressable::URI.parse('http://www.w3.org/ns/oa#commenting')
-      expect(g1.motivatedBy? uri).to be_truthy
-      expect(g2.motivatedBy? uri).to be_falsy  # note g1 and g2 differ here
-      expect(g3.motivatedBy? uri).to be_falsy
+      expect_motivatedBy? Addressable::URI.parse(uri)
     end
     it 'accepts an RDF::URI' do
-      uri = RDF::URI.parse('http://www.w3.org/ns/oa#commenting')
-      expect(g1.motivatedBy? uri).to be_truthy
-      expect(g2.motivatedBy? uri).to be_falsy  # note g1 and g2 differ here
-      expect(g3.motivatedBy? uri).to be_falsy
+      expect_motivatedBy? RDF::URI.parse(uri)
     end
   end
 
