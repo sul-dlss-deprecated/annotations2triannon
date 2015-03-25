@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rdf-iiif'
   s.add_dependency 'rdf-vocab', '~> 0.5'
   # HTTP client and rack cache components
+  s.add_dependency 'triannon-client'
   s.add_dependency 'rest-client', '~> 1.0'
   s.add_dependency 'rest-client-components', '~> 1.0'
   s.add_dependency 'rack-cache', '~> 1.2'

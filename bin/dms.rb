@@ -65,7 +65,7 @@ end
 # binding.pry
 
 
-tc = Annotations2triannon::TriannonClient.new
+tc = TriannonClient::TriannonClient.new
 puts "\nText Annotation posts:"
 text_annotations.each_pair do |m,alists|
   puts "\n#{m}"
