@@ -1,6 +1,8 @@
 language: ruby
 
-script: "bundle exec rspec"
+install: ./bin/setup.sh
+
+script: ./bin/test.sh
 
 notifications:
   email: false
