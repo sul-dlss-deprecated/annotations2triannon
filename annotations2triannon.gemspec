@@ -1,6 +1,4 @@
 # -*- encoding: utf-8 -*-
-#lib = File.expand_path('../lib/', __FILE__)
-#$:.unshift lib unless $:.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = 'annotations2triannon'
@@ -39,9 +37,6 @@ Gem::Specification.new do |s|
   # Use pry for console and debug config
   s.add_dependency 'pry'
   s.add_dependency 'pry-doc'
-  # performance utils
-  s.add_dependency 'parallel', '~> 1.0'
-  s.add_dependency 'ruby-progressbar', '~> 1.0'
   # database gems
   s.add_dependency 'mysql2'
   s.add_dependency 'sequel'

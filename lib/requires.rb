@@ -3,7 +3,6 @@ Dotenv.load
 
 require 'pry'
 require 'pry-doc'
-require 'ruby-progressbar'
 
 # Using rest-client with options to enable
 # a client HTTP cache
@@ -62,7 +61,6 @@ require_relative 'annotations2triannon/iiif_annotation_list'
 require_relative 'annotations2triannon/shared_canvas_manifest'
 require_relative 'annotations2triannon/shared_canvas_annotation_list'
 require_relative 'annotations2triannon/open_annotation'
-# require_relative 'annotations2triannon/triannon_client'
 require_relative 'annotations2triannon/iiif_navigator'
 
 if ENV['REVS_ENABLED'].to_s.upcase == 'TRUE'
