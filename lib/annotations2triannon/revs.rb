@@ -257,14 +257,6 @@ module Annotations2triannon
       end
     end
 
-    # def oa2triannon
-    #
-    #   # TODO:   - post the open_annotation to triannon-app
-    #   # TODO:     - check the http status on the post
-    #   # TODO:     - log.debug on success; log.error on errors
-    #
-    # end
-
   end
 
 end
