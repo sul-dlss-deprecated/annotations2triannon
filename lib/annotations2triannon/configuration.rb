@@ -3,12 +3,14 @@ module Annotations2triannon
 
   class Configuration
 
-    attr_accessor :debug
-    attr_accessor :logger
+    attr_reader :log_file
+    attr_reader :log_path
+    attr_reader :logger
 
-    attr_reader :limit_manifests
-    attr_reader :limit_annolists
-    attr_reader :limit_openannos
+    attr_accessor :debug
+    attr_accessor :limit_manifests
+    attr_accessor :limit_annolists
+    attr_accessor :limit_openannos
 
     def initialize
       @debug = env_boolean('DEBUG')
@@ -22,10 +24,10 @@ module Annotations2triannon
       log_file = ENV['ANNO_LOG_FILE'] || 'annotations2triannon.log'
       log_file = File.absolute_path log_file
       @log_file = log_file
-      log_path = File.dirname log_file
-      unless File.directory? log_path
+      @log_path = File.dirname log_file
+      unless File.directory? @log_path
         # try to create the log directory
-        Dir.mkdir log_path rescue nil
+        Dir.mkdir @log_path rescue nil
       end
       begin
         log_dev = File.new(@log_file, 'w+')
