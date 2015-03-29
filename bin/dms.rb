@@ -65,14 +65,69 @@ end
 # binding.pry
 
 
+# -----------------------------------------------------------------------
+# POST annotations to triannon and track the triannon URIs
+
 tc = TriannonClient::TriannonClient.new
-puts "\nText Annotation posts:"
-text_annotations.each_pair do |m,alists|
-  puts "\n#{m}"
-  alists.each_pair do |alist, oa_arr|
-    puts "Posting:\t#{alist}\t=> #{oa_arr.length}"
-    oa_arr.each {|oa| tc.post_annotation(oa) }
+
+# cleanup any prior annotations in triannon
+puts "\nText Annotation cleanup:"
+anno_tracking_file = File.join(CONFIG.log_path, 'dms_annotation_tracking.json')
+if File.exists? anno_tracking_file
+  if File.size(anno_tracking_file).to_i > 0
+    anno_tracking = JSON.parse( File.read(anno_tracking_file) )
+    anno_tracking.each_pair do |manifest_uri,anno_lists|
+      puts "\n#{manifest_uri}"
+      anno_lists.each_pair do |anno_list_uri, anno_list|
+        puts "Removing:\t#{anno_list_uri}\t=> #{anno_list.length}"
+        anno_list.each do |anno_data|
+          success = tc.delete_annotation(anno_data['uri'])
+          CONFIG.logger.error("FAILURE to delete #{anno_data['uri']}") unless success
+        end
+      end
+    end
+  else
+    puts "Nothing to delete."
   end
+else
+  puts "Nothing to delete."
+end
+
+
+puts "\nText Annotation posts:"
+anno_tracking = {}
+text_annotations.each_pair do |m,anno_lists|
+  puts "\n#{m}"
+  anno_tracking[m] = {}
+  anno_lists.each_pair do |anno_list_uri, anno_list|
+    puts "Posting:\t#{anno_list_uri}\t=> #{anno_list.length}"
+    anno_tracking[m][anno_list_uri] = []
+    anno_list.each do |oa|
+      response = tc.post_annotation(oa.to_jsonld_oa)
+      # parse the response into an RDF::Graph
+      g = RDF::Graph.new
+      RDF::Reader.for(:rdfxml).new(response) do |reader|
+        reader.each_statement {|s| g << s }
+      end
+      # query the graph to extract the annotation URI
+      q = [:s, RDF.type, RDF::Vocab::OA.Annotation]
+      uris = g.query(q).collect {|s| s.subject }
+      if uris.length != 1
+        #TODO issue an error
+      else
+        anno_data = {
+          uri: uris.first,
+          chars: oa.body_contentChars.first
+        }
+        anno_tracking[m][anno_list_uri].push(anno_data)
+      end
+    end
+  end
+end
+
+# persist the anno_tracking data
+File.open(anno_tracking_file,'w') do |f|
+  f.write(JSON.pretty_generate(anno_tracking))
 end
 
 
