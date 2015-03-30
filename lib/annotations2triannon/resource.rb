@@ -5,46 +5,24 @@ module Annotations2triannon
 
     @@config = nil
 
-    # def self.http_head_request(url)
-    #   uri = URI.parse(url)
-    #   begin
-    #     if RUBY_VERSION =~ /^1\.9/
-    #       req = Net::HTTP::Head.new(uri.path)
-    #     else
-    #       req = Net::HTTP::Head.new(uri)
-    #     end
-    #     Net::HTTP.start(uri.host, uri.port) {|http| http.request req }
-    #   rescue
-    #     @config.logger.error "Net::HTTP::Head failed for #{uri}"
-    #     begin
-    #       Net::HTTP.get_response(uri)
-    #     rescue
-    #       @config.logger.error "Net::HTTP.get_response failed for #{uri}"
-    #       nil
-    #     end
-    #   end
-    # end
-
     def self.http_head_request(url)
       uri = nil
       begin
         response = RestClient.head(url)
         uri = response.args[:url]
       rescue
-        @configuration.logger.error "RestClient.head failed for #{url}"
+        @@config.logger.error "RestClient.head failed for #{url}"
         begin
           response = RestClient.get(url)
           uri = response.args[:url]
         rescue
-          @configuration.logger.error "RestClient.get failed for #{url}"
+          @@config.logger.error "RestClient.get failed for #{url}"
         end
       end
       uri
     end
 
-
     attr_accessor :iri
-    # attr_reader :config
 
     def initialize(uri=nil)
       @@agent ||= Annotations2triannon::AGENT
@@ -52,11 +30,6 @@ module Annotations2triannon
       if uri =~ /\A#{URI::regexp}\z/
         uri = Addressable::URI.parse(uri.to_s) rescue nil
       end
-      # # Strip off any trailing '/'
-      # if uri.to_s.end_with? '/'
-      #   uri = uri.to_s.gsub(/\/$/,'')
-      #   uri = Addressable::URI.parse(uri.to_s) rescue nil
-      # end
       raise 'invalid uri' unless uri.instance_of? Addressable::URI
       @iri = uri
     end
@@ -235,7 +208,7 @@ module Annotations2triannon
     # HTTP methods
 
     # @param url [String|URI] A URL that can be resolved via HTTP request
-    # @return [RDF::Graph] graph of recursive resolution for a blank node
+    # @return [String] The URL that resolves, after permanent redirections
     def resolve_url(url)
       begin
         # RestClient does all the response code handling and redirection.
