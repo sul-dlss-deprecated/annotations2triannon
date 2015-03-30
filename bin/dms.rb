@@ -129,7 +129,7 @@ end
 File.open(anno_tracking_file,'w') do |f|
   f.write(JSON.pretty_generate(anno_tracking))
 end
-
+puts "Annotation records saved to: #{anno_tracking_file}"
 
 
 # For conversion of IIIF to OA context, see
