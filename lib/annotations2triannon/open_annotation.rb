@@ -17,7 +17,7 @@ module Annotations2triannon
     # @param id [UUID|URI|String] to identify an open annotation
     def initialize(graph=RDF::Graph.new, id=nil)
       @@agent ||= Annotations2triannon::AGENT
-      raise TypeError, 'graph must be RDF::Graph instance' unless graph.instance_of? RDF::Graph
+      raise ArgumentError, 'graph must be RDF::Graph instance' unless graph.instance_of? RDF::Graph
       if graph.empty?
         # create a new open annotation
         @graph = graph
@@ -25,7 +25,7 @@ module Annotations2triannon
         insert_annotation
       else
         @graph = graph
-        raise TypeError, 'graph must be an open annotation' unless is_annotation?
+        raise ArgumentError, 'graph must be an open annotation' unless is_annotation?
         if id.nil?
           @id = get_id
         else
