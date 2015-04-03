@@ -91,6 +91,24 @@ module Annotations2triannon
       hasBody.length > 0
     end
 
+    def body_graph
+      return @body_graph unless @body_graph.nil?
+      g = RDF::Graph.new
+      hasBody.each do |b|
+        @graph.query( [b, :p, :o] ).each_statement {|s| g << s}
+        # if b.uri?
+        #   begin
+        #     b_resource = Resource.new(b)
+        #     b_resource.rdf.each_statement {|s| g << s}
+        #   rescue
+        #     # Nothing to be done here; the Resource#rdf method
+        #     # will log errors in RDF retrieval
+        #   end
+        # end
+      end
+      @body_graph = g
+    end
+
     def body_contentAsText
       body_type RDF::CONTENT.ContentAsText
     end
@@ -103,10 +121,9 @@ module Annotations2triannon
     # @return [Array<String>] body chars as Strings, in an Array (one element for each contentAsText body)
     def body_contentChars
       q = RDF::Query.new
-      q << [nil, OA.hasBody, :body]
       q << [:body, RDF.type, RDF::CONTENT.ContentAsText]
       q << [:body, RDF::CONTENT.chars, :body_chars]
-      @graph.query(q).collect {|s| s.body_chars.value }
+      body_graph.query(q).collect {|s| s.body_chars.value }
     end
 
     def body_semanticTag
@@ -119,10 +136,7 @@ module Annotations2triannon
 
     def body_type(uri=nil)
       uri = RDF::URI.parse(uri) unless uri.nil?
-      q = RDF::Query.new
-      q << [nil, OA.hasBody, :body]
-      q << [:body, RDF.type, uri]
-      @graph.query(q)
+      body_graph.query([:body, RDF.type, uri])
     end
 
     # Insert an ?o for [id, OA.motivatedBy, ?o] where ?o is 'motivation'
