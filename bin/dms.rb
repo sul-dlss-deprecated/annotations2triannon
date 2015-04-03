@@ -3,6 +3,18 @@ require 'annotations2triannon'
 CONFIG = Annotations2triannon.configuration
 
 
+# TODO: add CLI interface for arguments to modify:
+# - reporting annotation counts (default=true)
+# - posting annotations to triannon (default=true)
+
+# TODO: Abstract this DMS script into a generic CLI that takes an
+# additional set of arguments to process any of the following:
+# - IIIF collection URI
+# - IIIF manifest URI
+# - IIIF annotation list URI
+
+
+
 # https://jirasul.stanford.edu/jira/browse/DT-5
 # Annotation lists:
 # 1) http://dms-data.stanford.edu/data/manifests/BnF/jr903ng8662/list/
@@ -21,6 +33,27 @@ CONFIG = Annotations2triannon.configuration
 # http://sul-reader-test.stanford.edu/m2/#6c45932d-2276-4699-9203-a9133181c2a1
 
 
+def dump_json(filename, data)
+  File.open(filename,'w') do |f|
+    f.write(JSON.pretty_generate(data))
+  end
+end
+
+def report_anno_counts(annos, anno_count_file)
+  anno_count_data = {}
+  annos.each_pair do |m,alists|
+    puts "\n#{m}"
+    anno_count_data[m] = {}
+    alists.each_pair do |alist, oa_arr|
+      puts "\t#{alist}\t=> #{oa_arr.length}"
+      anno_count_data[m][alist] = oa_arr.length
+    end
+  end
+  # persist the anno counts
+  dump_json(anno_count_file, anno_count_data)
+  puts "\nAnnotation counts saved to: #{anno_count_file}"
+end
+
 
 IIIF_COLLECTION='http://dms-data.stanford.edu/data/manifests/collections/collection.json'
 puts "\nCollection:\n#{IIIF_COLLECTION}"
@@ -36,13 +69,10 @@ annotation_lists = iiif_navigator.annotation_lists;
 annotation_lists.each_pair {|m,alist| puts "#{m} => #{alist.length}"}
 
 puts "\nOpen Annotation counts:"
+anno_count_file = File.join(CONFIG.log_path, 'dms_annotation_counts.json')
 open_annotations = iiif_navigator.open_annotations;
-open_annotations.each_pair do |m,alists|
-  puts "\n#{m}"
-  alists.each_pair do |alist, oa_arr|
-    puts "\t#{alist}\t=> #{oa_arr.length}"
-  end
-end
+report_anno_counts(open_annotations, anno_count_file)
+
 
 # Find all annotations where the body is text
 text_annotations = {}
@@ -56,6 +86,10 @@ manifest_keys.each do |mk|
     text_annotations[mk][ak] = anno_text_list
   end
 end
+puts "\nOpen Annotations with ContextAsText body:"
+anno_count_file = File.join(CONFIG.log_path, 'dms_annotation_text_counts.json')
+report_anno_counts(text_annotations, anno_count_file)
+
 
 # text_anno_list = text_annotations.values.first.values.first
 # oa = text_anno_list.sample(1).first
