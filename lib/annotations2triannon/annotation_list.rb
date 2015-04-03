@@ -22,7 +22,7 @@ module Annotations2triannon
     def open_annotations
       return @open_annotations unless @open_annotations.nil?
       begin
-        oa_graphs = collect_open_annotations(rdf)
+        oa_graphs = collect_open_annotations
         oa_graphs = oa_graphs.sample(@@config.limit_openannos) if @@config.limit_openannos > 0
         oa_graphs.collect {|oa| Annotations2triannon::OpenAnnotation.new(oa)}
       rescue => e

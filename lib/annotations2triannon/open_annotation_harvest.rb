@@ -2,33 +2,31 @@ require 'rdf'
 require 'rdf-vocab'
 
 # Module designed to be a mixin for manifest and annotation list.
+# The methods assume that the class including this module contains
+# an #rdf method to access and RDF::Graph object.
 module OpenAnnotationHarvest
 
-  # @param rdf [RDF::Graph] a graph to search for RDF::Vocab::OA.Annotation
+  # Searches rdf graph to find RDF::Vocab::OA.Annotation
   # @return [Array<RDF::Graph>] for graphs of type RDF::Vocab::OA.Annotation
-  def collect_open_annotations(rdf)
+  def collect_open_annotations
     oa_graphs = []
     q = [nil, RDF.type, RDF::Vocab::OA.Annotation]
-    rdf.query(q).each_subject do |subject|
-      g = RDF::Graph.new
-      rdf.query([subject, nil, nil]) do |s,p,o|
-        g << [s,p,o]
-        g << rdf_expand_blank_nodes(o) if o.node?
-      end
-      oa_graphs << g
+    # 'rdf' must be a method to access an RDF::Graph object
+    rdf.query(q).each_subject do |s|
+      oa_graphs << rdf_subject_graph(s)
     end
     oa_graphs
   end
 
-  # @param object [RDF::Node] An RDF blank node
-  # @return [RDF::Graph] graph of recursive resolution for a blank node
-  def rdf_expand_blank_nodes(object)
+  # @param subject [RDF::Resource] An RDF::Resource
+  # @return [RDF::Graph] graph for 'subject' as the ?s in ?s ?p ?o
+  def rdf_subject_graph(subject)
     g = RDF::Graph.new
-    if object.node?
-      rdf.query([object, nil, nil]) do |s,p,o|
-        g << [s,p,o]
-        g << rdf_expand_blank_nodes(o) if o.node?
-      end
+    # 'rdf' must be a method to access an RDF::Graph object
+    rdf.query([subject, nil, nil]) do |s,p,o|
+      g << [s,p,o]
+      g << rdf_subject_graph(o) if o.node?
+      g << rdf_subject_graph(o) if o.uri?
     end
     g
   end
