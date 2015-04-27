@@ -1,5 +1,3 @@
-require 'rdf'
-require 'rdf-vocab'
 
 # Module designed to be a mixin for manifest and annotation list.
 # The methods assume that the class including this module contains
