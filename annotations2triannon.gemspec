@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.authors     = ['Darren Weber',]
   s.email       = ['darren.weber@stanford.edu']
 
-  s.homepage    = 'https://github.com/sul-dlss/triannon'
+  s.homepage    = 'https://github.com/sul-dlss/annotations2triannon'
   s.summary     = 'bulk load annotations into triannon'
   s.description = 'Utilities for bulk loading annotations into triannon'
 
