@@ -28,8 +28,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'rdf-iiif'
   # HTTP client and rack cache components
   s.add_dependency 'triannon-client'
-  s.add_dependency 'rest-client', '~> 1.7.0'
-  s.add_dependency 'rest-client-components', '~> 1.3.0'
+  s.add_dependency 'rest-client', '~> 1.8.0'
+  s.add_dependency 'rest-client-components', '~> 1.4.0'
   s.add_dependency 'rack-cache', '~> 1.2'
   # dalli is a memcached ruby client
   s.add_dependency 'dalli', '~> 2.7.2'
