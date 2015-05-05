@@ -47,7 +47,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec'
 
   s.files   = `git ls-files`.split($/)
-  dev_files = %w(.gitignore bin/setup.sh bin/test.sh)
+  dev_files = %w(.gitignore bin/console bin/ctags.rb bin/setup.sh bin/test.sh)
   dev_files.each {|f| s.files.delete f }
 
   s.executables = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
