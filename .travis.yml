@@ -2,8 +2,6 @@ language: ruby
 
 install: ./bin/setup.sh
 
-script: ./bin/test.sh
-
 notifications:
   email: false
 
