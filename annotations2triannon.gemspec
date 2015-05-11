@@ -23,16 +23,17 @@ Gem::Specification.new do |s|
   # Use ENV for config
   s.add_dependency 'dotenv'
   # RDF linked data
-  s.add_dependency 'addressable', '~> 2.3'
-  s.add_dependency 'linkeddata', '~> 1.0'
+  s.add_dependency 'addressable'
+  s.add_dependency 'linkeddata'
+  # rdf-iiif to be deprecated, see https://github.com/sul-dlss/rdf-iiif/issues/1
   s.add_dependency 'rdf-iiif'
   # HTTP client and rack cache components
-  s.add_dependency 'triannon-client'
-  s.add_dependency 'rest-client', '~> 1.8.0'
-  s.add_dependency 'rest-client-components', '~> 1.4.0'
-  s.add_dependency 'rack-cache', '~> 1.2'
+  s.add_dependency 'triannon-client', '=0.2.1.pre.0.rc1'
+  s.add_dependency 'rest-client'
+  s.add_dependency 'rest-client-components'
+  s.add_dependency 'rack-cache'
   # dalli is a memcached ruby client
-  s.add_dependency 'dalli', '~> 2.7.2'
+  s.add_dependency 'dalli'
   # Use pry for console and debug config
   s.add_dependency 'pry'
   s.add_dependency 'pry-doc'
