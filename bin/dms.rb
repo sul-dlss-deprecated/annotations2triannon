@@ -139,18 +139,12 @@ text_annotations.each_pair do |m,anno_lists|
     anno_list.each do |oa|
       response = tc.post_annotation(oa.to_jsonld_oa)
       # parse the response into an RDF::Graph
-      g = RDF::Graph.new
-      RDF::Reader.for(:rdfxml).new(response) do |reader|
-        reader.each_statement {|s| g << s }
-      end
+      graph = tc.response2graph(response)
       # query the graph to extract the annotation URI
-      q = [:s, RDF.type, RDF::Vocab::OA.Annotation]
-      uris = g.query(q).collect {|s| s.subject }
-      if uris.length != 1
-        #TODO issue an error
-      else
+      uri = tc.annotation_uri(graph)
+      if uri
         anno_data = {
-          uri: uris.first,
+          uri: uri,
           chars: oa.body_contentChars.first
         }
         anno_tracking[m][anno_list_uri].push(anno_data)
