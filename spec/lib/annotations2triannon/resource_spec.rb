@@ -2,7 +2,7 @@ require "spec_helper"
 
 module Annotations2triannon
 
-  describe Resource do
+  describe Resource, :vcr do
 
     before :all do
       @auth_id = 'no99010609'

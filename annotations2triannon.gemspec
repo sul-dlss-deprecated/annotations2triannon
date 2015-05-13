@@ -46,6 +46,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'guard-ctags-bundler'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec'
+  s.add_development_dependency 'vcr'
+  s.add_development_dependency 'webmock'
 
   s.files   = `git ls-files`.split($/)
   dev_files = %w(.gitignore bin/console bin/ctags.rb bin/setup.sh bin/test.sh)
