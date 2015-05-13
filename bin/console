@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
+require 'rubygems'
+require 'bundler/setup'
+
 require 'annotations2triannon'
 CONFIG = Annotations2triannon.configuration
 binding.pry
-
