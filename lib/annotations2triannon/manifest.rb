@@ -13,7 +13,7 @@ module Annotations2triannon
     end
 
     def iiif_manifest?
-      iri_type? RDF::IIIFPresentation.Manifest
+      iri_type? RDF::Vocab::IIIF.Manifest
     end
 
     def sc_manifest?
@@ -69,9 +69,9 @@ module Annotations2triannon
       [nil, RDF.type, RDF::SC.AnnotationList]
     end
 
-    # @return a query triple to find RDF::IIIFPresentation.AnnotationList
+    # @return a query triple to find RDF::Vocab::IIIF.AnnotationList
     def query_iiif_annotation_list
-      [nil, RDF.type, RDF::IIIFPresentation.AnnotationList]
+      [nil, RDF.type, RDF::Vocab::IIIF.AnnotationList]
     end
 
     def collect_annotation_list_uris(q)

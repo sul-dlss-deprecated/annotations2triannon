@@ -8,7 +8,7 @@ module Annotations2triannon
     attr_reader :sc_manifests
 
     def collection?
-      iri_type? RDF::IIIFPresentation.Collection
+      iri_type? RDF::Vocab::IIIF.Collection
     end
 
     def manifests
@@ -43,7 +43,7 @@ module Annotations2triannon
     end
 
     def query_iiif_manifests
-      [nil, RDF.type, RDF::IIIFPresentation.Manifest]
+      [nil, RDF.type, RDF::Vocab::IIIF.Manifest]
     end
 
     def query_sc_manifests

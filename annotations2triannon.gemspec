@@ -25,10 +25,8 @@ Gem::Specification.new do |s|
   # RDF linked data
   s.add_dependency 'addressable'
   s.add_dependency 'linkeddata'
-  # rdf-iiif to be deprecated, see https://github.com/sul-dlss/rdf-iiif/issues/1
-  s.add_dependency 'rdf-iiif'
   # HTTP client and rack cache components
-  s.add_dependency 'triannon-client', '=0.2.1.pre.0.rc1'
+  s.add_dependency 'triannon-client'
   s.add_dependency 'rest-client'
   s.add_dependency 'rest-client-components'
   s.add_dependency 'rack-cache'

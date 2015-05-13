@@ -5,6 +5,7 @@ module Annotations2triannon
   # class OpenAnnotation < Resource
   class OpenAnnotation
 
+    CONTENT = RDF::Vocab::CNT
     OA = RDF::Vocab::OA
     OA_CONTEXT = 'http://www.w3.org/ns/oa.jsonld'
     IIIF_CONTEXT = 'http://iiif.io/api/presentation/2/context.json'
@@ -110,7 +111,7 @@ module Annotations2triannon
     end
 
     def body_contentAsText
-      body_type RDF::CONTENT.ContentAsText
+      body_type CONTENT.ContentAsText
     end
 
     def body_contentAsText?
@@ -121,8 +122,8 @@ module Annotations2triannon
     # @return [Array<String>] body chars as Strings, in an Array (one element for each contentAsText body)
     def body_contentChars
       q = RDF::Query.new
-      q << [:body, RDF.type, RDF::CONTENT.ContentAsText]
-      q << [:body, RDF::CONTENT.chars, :body_chars]
+      q << [:body, RDF.type, CONTENT.ContentAsText]
+      q << [:body, CONTENT.chars, :body_chars]
       body_graph.query(q).collect {|s| s.body_chars.value }
     end
 
