@@ -115,7 +115,9 @@ if File.exists? anno_tracking_file
       anno_lists.each_pair do |anno_list_uri, anno_list|
         puts "Removing:\t#{anno_list_uri}\t=> #{anno_list.length}"
         anno_list.each do |anno_data|
-          success = tc.delete_annotation(anno_data['uri'])
+          uri = RDF::URI.new(anno_data['uri'])
+          id = tc.annotation_id(uri)
+          success = tc.delete_annotation(id)
           CONFIG.logger.error("FAILURE to delete #{anno_data['uri']}") unless success
         end
       end
