@@ -40,6 +40,9 @@ Gem::Specification.new do |s|
   # database gems
   s.add_dependency 'mysql2'
   s.add_dependency 'sequel'
+  # cache simple RDF on redis
+  s.add_dependency 'hiredis'
+  s.add_dependency 'redis'
 
   s.add_development_dependency 'coveralls'
   s.add_development_dependency 'guard'
