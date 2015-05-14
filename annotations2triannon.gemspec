@@ -2,12 +2,12 @@
 
 Gem::Specification.new do |s|
   s.name        = 'annotations2triannon'
-  s.version     = '0.1.0'
+  s.version     = '0.2.0'
   s.licenses    = ['Apache-2.0']
   s.platform    = Gem::Platform::RUBY
 
   s.authors     = ['Darren Weber',]
-  s.email       = ['darren.weber@stanford.edu']
+  s.email       = ['triannon-commits@lists.stanford.edu']
 
   s.homepage    = 'https://github.com/sul-dlss/annotations2triannon'
   s.summary     = 'bulk load annotations into triannon'
@@ -23,22 +23,27 @@ Gem::Specification.new do |s|
   # Use ENV for config
   s.add_dependency 'dotenv'
   # RDF linked data
-  s.add_dependency 'addressable', '~> 2.3'
-  s.add_dependency 'linkeddata', '~> 1.0'
-  s.add_dependency 'rdf-iiif'
+  s.add_dependency 'addressable'
+  s.add_dependency 'linkeddata'
   # HTTP client and rack cache components
   s.add_dependency 'triannon-client'
-  s.add_dependency 'rest-client', '~> 1.7.0'
-  s.add_dependency 'rest-client-components', '~> 1.3.0'
-  s.add_dependency 'rack-cache', '~> 1.2'
+  s.add_dependency 'rest-client'
+  s.add_dependency 'rest-client-components'
+  s.add_dependency 'rack-cache'
+  # Concurrent HTTP requests
+  s.add_dependency 'parallel'
+  s.add_dependency 'ruby-progressbar'
   # dalli is a memcached ruby client
-  s.add_dependency 'dalli', '~> 2.7.2'
+  s.add_dependency 'dalli'
   # Use pry for console and debug config
   s.add_dependency 'pry'
   s.add_dependency 'pry-doc'
   # database gems
   s.add_dependency 'mysql2'
   s.add_dependency 'sequel'
+  # cache simple RDF on redis
+  s.add_dependency 'hiredis'
+  s.add_dependency 'redis'
 
   s.add_development_dependency 'coveralls'
   s.add_development_dependency 'guard'
@@ -47,7 +52,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec'
 
   s.files   = `git ls-files`.split($/)
-  dev_files = %w(.gitignore bin/setup.sh bin/test.sh)
+  dev_files = %w(.gitignore bin/console bin/ctags.rb bin/setup.sh bin/test.sh)
   dev_files.each {|f| s.files.delete f }
 
   s.executables = s.files.grep(%r{^bin/}) { |f| File.basename(f) }

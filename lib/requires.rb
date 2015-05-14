@@ -39,9 +39,10 @@ require 'addressable/uri'
 require 'json'
 require 'uuid'
 
+require 'ruby-progressbar'
+require 'parallel'
+
 require 'linkeddata'
-require 'rdf/iiif'
-require_relative 'rdf/vocab/Content.rb'
 require_relative 'rdf/vocab/sc.rb'
 
 require 'triannon-client'

@@ -12,7 +12,7 @@ module Annotations2triannon
     end
 
     def iiif_annotation_list?
-      iri_type? RDF::IIIFPresentation.AnnotationList
+      iri_type? RDF::Vocab::IIIF.AnnotationList
     end
 
     def sc_annotation_list?
