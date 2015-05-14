@@ -64,18 +64,30 @@ ANNO_TRACKING_FILE = File.join(CONFIG.log_path, 'dms_annotation_tracking.json')
 # persist the anno_tracking data to a file
 # @param anno_data [Hash]
 def anno_tracking_save(anno_data)
-  dump_json(ANNO_TRACKING_FILE, anno_data)
-  puts "Annotation records updated in: #{ANNO_TRACKING_FILE}"
+  begin
+    dump_json(ANNO_TRACKING_FILE, anno_data)
+    puts "Annotation records updated in: #{ANNO_TRACKING_FILE}"
+  rescue
+    msg = "FAILURE to save annotation tracking file #{ANNO_TRACKING_FILE}"
+    CONFIG.logger.error(msg)
+  end
 end
 
 # retrieve the anno_tracking data from a file
 # @returns anno_data [Hash]
 def anno_tracking_load
-  if File.exists? ANNO_TRACKING_FILE
-    if File.size(ANNO_TRACKING_FILE).to_i > 0
-      return JSON.parse( File.read(ANNO_TRACKING_FILE) )
+  data = {}
+  begin
+    if File.exists? ANNO_TRACKING_FILE
+      if File.size(ANNO_TRACKING_FILE).to_i > 0
+        data = JSON.parse( File.read(ANNO_TRACKING_FILE) )
+      end
     end
+  rescue
+    msg = "FAILURE to load annotation tracking file #{ANNO_TRACKING_FILE}"
+    CONFIG.logger.error(msg)
   end
+  return data
 end
 
 
