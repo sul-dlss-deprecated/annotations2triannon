@@ -2,6 +2,7 @@
 require 'annotations2triannon'
 CONFIG = Annotations2triannon.configuration
 
+tc = TriannonClient::TriannonClient.new
 
 # TODO: add CLI interface for arguments to modify:
 # - reporting annotation counts (default=true)
@@ -55,6 +56,62 @@ def report_anno_counts(annos, anno_count_file)
 end
 
 
+# -----------------------------------------------------------------------
+# Annotation tracking using a file
+
+ANNO_TRACKING_FILE = File.join(CONFIG.log_path, 'dms_annotation_tracking.json')
+
+# persist the anno_tracking data to a file
+# @param anno_data [Hash]
+def anno_tracking_save(anno_data)
+  dump_json(ANNO_TRACKING_FILE, anno_data)
+  puts "Annotation records updated in: #{ANNO_TRACKING_FILE}"
+end
+
+# retrieve the anno_tracking data from a file
+# @returns anno_data [Hash]
+def anno_tracking_load
+  if File.exists? ANNO_TRACKING_FILE
+    if File.size(ANNO_TRACKING_FILE).to_i > 0
+      return JSON.parse( File.read(ANNO_TRACKING_FILE) )
+    end
+  end
+end
+
+
+# -----------------------------------------------------------------------
+# DELETE previous annotations on triannon
+
+puts "\nAnnotation cleanup:"
+anno_tracking = anno_tracking_load
+anno_uris = []
+anno_tracking.each_pair do |manifest_uri, anno_lists|
+  anno_lists.each_pair do |anno_list_uri, anno_list|
+    anno_list.each do |anno_data|
+      anno_uris << RDF::URI.new(anno_data['uri'])
+    end
+  end
+end
+anno_ids = anno_uris.collect {|uri| tc.annotation_id(uri) }
+unless anno_ids.empty?
+  # Find the intersection of the DMS annotations previously
+  # created in triannon and the current set of annotations in triannon.
+  graph = tc.get_annotations
+  uris = tc.annotation_uris(graph)
+  ids = uris.collect {|uri| tc.annotation_id(uri)}
+  annos_to_remove = anno_ids & ids # intersection of arrays
+  annos_to_remove.each do |id|
+    success = tc.delete_annotation(id)
+    CONFIG.logger.error("FAILURE to delete #{id}") unless success
+  end
+end
+# Clear the record of the saved annotations
+anno_tracking_save({})
+
+
+# -----------------------------------------------------------------------
+# Loading IIIF annotations from a collection
+
 IIIF_COLLECTION='http://dms-data.stanford.edu/data/manifests/collections/collection.json'
 puts "\nCollection:\n#{IIIF_COLLECTION}"
 
@@ -72,7 +129,6 @@ puts "\nOpen Annotation counts:"
 anno_count_file = File.join(CONFIG.log_path, 'dms_annotation_counts.json')
 open_annotations = iiif_navigator.open_annotations;
 report_anno_counts(open_annotations, anno_count_file)
-
 
 # Find all annotations where the body is text
 text_annotations = {}
@@ -102,34 +158,6 @@ report_anno_counts(text_annotations, anno_count_file)
 # -----------------------------------------------------------------------
 # POST annotations to triannon and track the triannon URIs
 
-tc = TriannonClient::TriannonClient.new
-
-# cleanup any prior annotations in triannon
-puts "\nText Annotation cleanup:"
-anno_tracking_file = File.join(CONFIG.log_path, 'dms_annotation_tracking.json')
-if File.exists? anno_tracking_file
-  if File.size(anno_tracking_file).to_i > 0
-    anno_tracking = JSON.parse( File.read(anno_tracking_file) )
-    anno_tracking.each_pair do |manifest_uri,anno_lists|
-      puts "\n#{manifest_uri}"
-      anno_lists.each_pair do |anno_list_uri, anno_list|
-        puts "Removing:\t#{anno_list_uri}\t=> #{anno_list.length}"
-        anno_list.each do |anno_data|
-          uri = RDF::URI.new(anno_data['uri'])
-          id = tc.annotation_id(uri)
-          success = tc.delete_annotation(id)
-          CONFIG.logger.error("FAILURE to delete #{anno_data['uri']}") unless success
-        end
-      end
-    end
-  else
-    puts "Nothing to delete."
-  end
-else
-  puts "Nothing to delete."
-end
-
-
 puts "\nText Annotation posts:"
 anno_tracking = {}
 text_annotations.each_pair do |m,anno_lists|
@@ -138,12 +166,13 @@ text_annotations.each_pair do |m,anno_lists|
   anno_lists.each_pair do |anno_list_uri, anno_list|
     puts "Posting:\t#{anno_list_uri}\t=> #{anno_list.length}"
     anno_tracking[m][anno_list_uri] = []
-    anno_list.each do |oa|
+    # Allow Parallel to automatically determine the optimal concurrency model.
+    Parallel.each(anno_list, :progress => 'Annotations: ') do |oa|
       response = tc.post_annotation(oa.to_jsonld_oa)
       # parse the response into an RDF::Graph
       graph = tc.response2graph(response)
       # query the graph to extract the annotation URI
-      uri = tc.annotation_uri(graph)
+      uri = tc.annotation_uris(graph).first
       if uri
         anno_data = {
           uri: uri,
@@ -154,12 +183,8 @@ text_annotations.each_pair do |m,anno_lists|
     end
   end
 end
+anno_tracking_save(anno_tracking)
 
-# persist the anno_tracking data
-File.open(anno_tracking_file,'w') do |f|
-  f.write(JSON.pretty_generate(anno_tracking))
-end
-puts "Annotation records saved to: #{anno_tracking_file}"
 
 
 # For conversion of IIIF to OA context, see
