@@ -39,9 +39,6 @@ require 'addressable/uri'
 require 'json'
 require 'uuid'
 
-require 'ruby-progressbar'
-require 'parallel'
-
 require 'linkeddata'
 require_relative 'rdf/vocab/sc.rb'
 
