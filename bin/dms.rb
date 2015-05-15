@@ -178,8 +178,7 @@ text_annotations.each_pair do |m,anno_lists|
   anno_lists.each_pair do |anno_list_uri, anno_list|
     puts "Posting:\t#{anno_list_uri}\t=> #{anno_list.length}"
     anno_tracking[m][anno_list_uri] = []
-    # Allow Parallel to automatically determine the optimal concurrency model.
-    Parallel.each(anno_list, :progress => 'Annotations: ') do |oa|
+    anno_list.each do |oa|
       response = tc.post_annotation(oa.to_jsonld_oa)
       # parse the response into an RDF::Graph
       graph = tc.response2graph(response)
@@ -191,8 +190,11 @@ text_annotations.each_pair do |m,anno_lists|
           chars: oa.body_contentChars.first
         }
         anno_tracking[m][anno_list_uri].push(anno_data)
+      else
+        CONFIG.logger.error("FAILURE to POST #{oa.id}")
       end
     end
+    anno_tracking_save(anno_tracking)
   end
 end
 anno_tracking_save(anno_tracking)

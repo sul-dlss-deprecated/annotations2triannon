@@ -27,10 +27,7 @@ module Annotations2triannon
       else
         @graph = graph
         raise ArgumentError, 'graph must be an open annotation' unless is_annotation?
-        if id.nil?
-          @id = get_id
-        else
-        end
+        id.nil? ? @id = get_id : @id = id
       end
     end
 

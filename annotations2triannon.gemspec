@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name        = 'annotations2triannon'
-  s.version     = '0.2.2'
+  s.version     = '0.3.0'
   s.licenses    = ['Apache-2.0']
   s.platform    = Gem::Platform::RUBY
 
@@ -30,9 +30,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'rest-client'
   s.add_dependency 'rest-client-components'
   s.add_dependency 'rack-cache'
-  # Concurrent HTTP requests
-  s.add_dependency 'parallel'
-  s.add_dependency 'ruby-progressbar'
   # dalli is a memcached ruby client
   s.add_dependency 'dalli'
   # Use pry for console and debug config
