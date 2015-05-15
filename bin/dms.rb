@@ -174,25 +174,30 @@ puts "\nText Annotation posts:"
 anno_tracking = ThreadSafe::Hash.new
 text_annotations.each_pair do |m,anno_lists|
   puts "\n#{m}"
-  anno_tracking[m] = {}
+  anno_tracking[m] = ThreadSafe::Hash.new
   anno_lists.each_pair do |anno_list_uri, anno_list|
     puts "Posting:\t#{anno_list_uri}\t=> #{anno_list.length}"
     anno_tracking[m][anno_list_uri] = ThreadSafe::Array.new
     # Allow Parallel to automatically determine the optimal concurrency model.
     Parallel.each(anno_list, :progress => 'Annotations: ') do |oa|
-      response = tc.post_annotation(oa.to_jsonld_oa)
+    #anno_list.each do |oa|
+      client = TriannonClient::TriannonClient.new
+      response = client.post_annotation(oa.to_jsonld_oa)
       # parse the response into an RDF::Graph
-      graph = tc.response2graph(response)
+      graph = client.response2graph(response)
       # query the graph to extract the annotation URI
-      uri = tc.annotation_uris(graph).first
-      if uri
-        anno_data = {
-          uri: uri,
-          chars: oa.body_contentChars.first
-        }
-        anno_tracking[m][anno_list_uri].push(anno_data)
-      end
+      uri = client.annotation_uris(graph).first
+      anno_data = ThreadSafe::Hash.new
+      anno_data[:uri] = uri
+      anno_data[:chars] = oa.body_contentChars.first
+
+      # BUG: this array push is not working in threading mode!
+      # The saved anno_tracking data is always empty at the level of this
+      # array of anno_data values.
+      anno_tracking[m][anno_list_uri].push(anno_data)
+
     end
+    anno_tracking_save(anno_tracking)
   end
 end
 anno_tracking_save(anno_tracking)
