@@ -171,13 +171,13 @@ report_anno_counts(text_annotations, anno_count_file)
 # POST annotations to triannon and track the triannon URIs
 
 puts "\nText Annotation posts:"
-anno_tracking = {}
+anno_tracking = ThreadSafe::Hash.new
 text_annotations.each_pair do |m,anno_lists|
   puts "\n#{m}"
   anno_tracking[m] = {}
   anno_lists.each_pair do |anno_list_uri, anno_list|
     puts "Posting:\t#{anno_list_uri}\t=> #{anno_list.length}"
-    anno_tracking[m][anno_list_uri] = []
+    anno_tracking[m][anno_list_uri] = ThreadSafe::Array.new
     # Allow Parallel to automatically determine the optimal concurrency model.
     Parallel.each(anno_list, :progress => 'Annotations: ') do |oa|
       response = tc.post_annotation(oa.to_jsonld_oa)
