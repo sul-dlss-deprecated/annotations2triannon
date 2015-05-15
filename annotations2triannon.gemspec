@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
   # Concurrent HTTP requests
   s.add_dependency 'parallel'
   s.add_dependency 'ruby-progressbar'
+  s.add_dependency 'thread_safe'
   # dalli is a memcached ruby client
   s.add_dependency 'dalli'
   # Use pry for console and debug config

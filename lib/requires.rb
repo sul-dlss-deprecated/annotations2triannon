@@ -39,6 +39,7 @@ require 'addressable/uri'
 require 'json'
 require 'uuid'
 
+require 'thread_safe'
 require 'ruby-progressbar'
 require 'parallel'
 
