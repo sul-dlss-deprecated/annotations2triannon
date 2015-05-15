@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name        = 'annotations2triannon'
-  s.version     = '0.2.1'
+  s.version     = '0.2.2'
   s.licenses    = ['Apache-2.0']
   s.platform    = Gem::Platform::RUBY
 
