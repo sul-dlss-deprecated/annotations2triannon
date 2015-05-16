@@ -18,16 +18,19 @@ module Annotations2triannon
     # @param id [UUID|URI|String] to identify an open annotation
     def initialize(graph=RDF::Graph.new, id=nil)
       @@agent ||= Annotations2triannon::AGENT
-      raise ArgumentError, 'graph must be RDF::Graph instance' unless graph.instance_of? RDF::Graph
-      @graph = graph
-      @id = id.nil? ? get_id : RDF::URI.parse(id)
-      insert_annotation unless is_annotation?
+      set_graph(graph)
+      set_id(id) # must be set after setting the graph
+      insert_annotation unless is_annotation? # useful when graph.empty?
     end
 
-    def get_id
-      return @id unless @id.nil?
-      q = [nil, RDF.type, OA.Annotation]
-      @id = @graph.query(q).collect {|s| s.subject }.first || RDF::URI.parse(UUID.generate)
+    # @see #set_id
+    def id=(id)
+      set_id(id)
+    end
+
+    # @see #set_graph
+    def graph=(graph)
+      set_graph(graph)
     end
 
     # @return [boolean] true if RDF.type is OA.Annotation, with OA.hasBody and OA.hasTarget
@@ -83,21 +86,11 @@ module Annotations2triannon
     end
 
     def body_graph
-      return @body_graph unless @body_graph.nil?
       g = RDF::Graph.new
       hasBody.each do |b|
         @graph.query( [b, :p, :o] ).each_statement {|s| g << s}
-        # if b.uri?
-        #   begin
-        #     b_resource = Resource.new(b)
-        #     b_resource.rdf.each_statement {|s| g << s}
-        #   rescue
-        #     # Nothing to be done here; the Resource#rdf method
-        #     # will log errors in RDF retrieval
-        #   end
-        # end
       end
-      @body_graph = g
+      g
     end
 
     def body_contentAsText
@@ -259,6 +252,33 @@ module Annotations2triannon
     def to_ttl
       provenance
       @graph.dump(:ttl, standard_prefixes: true)
+    end
+
+    private
+
+    # Sets the annotation ID as an RDF::URI from id, but if the id is nil, it
+    # will try to get the ID from the graph and, as a last resort, it will
+    # generate a unique ID using a UUID.
+    # @param id [UUID|URI|String] to identify an open annotation
+    def set_id(id)
+      raise ArgumentError, 'id cannot be an empty String' if (id.instance_of?(String) && id.empty?)
+      if id.nil?
+        # Try to get the ID from the graph or use a UUID
+        q = [nil, RDF.type, OA.Annotation]
+        @id = @graph.query(q).collect {|s| s.subject }.first || RDF::URI.parse(UUID.generate)
+      else
+        # Try to parse the ID as an RDF::URI or use a UUID
+        @id = RDF::URI.parse(id) || RDF::URI.parse(UUID.generate)
+      end
+    end
+
+    # Sets the annotation graph as an RDF::Graph
+    # @param graph [RDF::Graph]
+    def set_graph(graph)
+      raise ArgumentError, 'graph must be RDF::Graph instance' unless graph.instance_of? RDF::Graph
+      @graph = graph
+      set_id(nil) if @id.nil?  # update the ID using the graph annotation URI
+      insert_annotation unless is_annotation? # ensure it's an open annotation
     end
 
   end
