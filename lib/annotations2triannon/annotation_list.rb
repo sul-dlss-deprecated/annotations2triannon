@@ -23,7 +23,7 @@ module Annotations2triannon
       return @open_annotations unless @open_annotations.nil?
       begin
         oa_graphs = collect_open_annotations
-        oa_graphs = oa_graphs.sample(@@config.limit_openannos) if @@config.limit_openannos > 0
+        oa_graphs = @@config.array_sampler(oa_graphs, @@config.limit_openannos)
         oa_graphs.collect {|oa| Annotations2triannon::OpenAnnotation.new(oa)}
       rescue => e
         binding.pry if @@config.debug

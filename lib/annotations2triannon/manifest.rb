@@ -76,8 +76,7 @@ module Annotations2triannon
 
     def collect_annotation_list_uris(q)
       uris = rdf.query(q).collect {|s| s.subject }
-      uris = uris.sample(@@config.limit_annolists) if @@config.limit_annolists > 0
-      uris
+      @@config.array_sampler(uris, @@config.limit_annolists)
     end
 
   end

@@ -10,7 +10,6 @@ require 'rest-client'
 RestClient.proxy = ENV['http_proxy'] unless ENV['http_proxy'].nil?
 RestClient.proxy = ENV['HTTP_PROXY'] unless ENV['HTTP_PROXY'].nil?
 if ENV['RACK_CACHE_ENABLED'].to_s.upcase == 'TRUE'
-  require 'dalli'
   require 'restclient/components'
   require 'rack/cache'
   # RestClient.enable Rack::CommonLogger
@@ -18,8 +17,9 @@ if ENV['RACK_CACHE_ENABLED'].to_s.upcase == 'TRUE'
   # Enable the HTTP cache to store meta and entity data according
   # to the env config values or the defaults given here.  See
   # http://rtomayko.github.io/rack-cache/configuration for available options.
-  metastore = ENV['RACK_CACHE_METASTORE'] || 'file:/tmp/cache/meta'
-  entitystore = ENV['RACK_CACHE_ENTITYSTORE'] || 'file:/tmp/cache/body'
+  metastore = ENV['RACK_CACHE_METASTORE'] || 'file:tmp/cache/meta'
+  entitystore = ENV['RACK_CACHE_ENTITYSTORE'] || 'file:tmp/cache/body'
+  require 'dalli' if ((metastore =~ /memcache/) || (entitystore =~ /memcache/))
   verbose = ENV['RACK_CACHE_VERBOSE'].to_s.upcase == 'TRUE' || false
   RestClient.enable Rack::Cache,
     :metastore => metastore, :entitystore => entitystore, :verbose => verbose
@@ -52,6 +52,7 @@ require_relative 'annotations2triannon/configuration'
 require_relative 'annotations2triannon/resource'
 require_relative 'annotations2triannon/manifest'
 require_relative 'annotations2triannon/annotation_list'
+require_relative 'annotations2triannon/annotation_tracker'
 require_relative 'annotations2triannon/iiif_collection'
 require_relative 'annotations2triannon/iiif_manifest'
 require_relative 'annotations2triannon/iiif_annotation_list'
