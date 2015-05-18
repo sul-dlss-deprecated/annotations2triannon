@@ -26,14 +26,13 @@ module Annotations2triannon
     # retrieve the anno_tracking data from a file
     # @returns data [Hash]
     def load
-      data = {}
       begin
-        data = json_load(@anno_file)
+        json_load(@anno_file) || {}
       rescue
         msg = "FAILURE to load annotation tracking file #{@anno_file}"
         @config.logger.error(msg)
+        {}
       end
-      return data
     end
 
     # Retrieve the annotation URIs from an anno_tracking data file
