@@ -10,6 +10,7 @@ module Annotations2triannon
     def initialize(file_name='anno_tracking.json')
       @config = Annotations2triannon.configuration
       @anno_file = File.join(@config.log_path, file_name)
+      FileUtils.touch @anno_file
     end
 
     # Save the current tracking file to an archive file tagged by timestamp
