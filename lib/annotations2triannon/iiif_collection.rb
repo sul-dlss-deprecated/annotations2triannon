@@ -38,8 +38,7 @@ module Annotations2triannon
 
     def manifest_uris(q)
       uris = rdf.query(q).collect {|s| s.subject }
-      uris = uris.sample(@@config.limit_manifests) if @@config.limit_manifests > 0
-      uris
+      @@config.array_sampler(uris, @@config.limit_manifests)
     end
 
     def query_iiif_manifests
