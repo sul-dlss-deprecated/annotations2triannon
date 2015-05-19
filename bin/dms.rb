@@ -59,67 +59,14 @@ end
 # -----------------------------------------------------------------------
 # Annotation tracking using a file
 
-ANNO_TRACKING_FILE = File.join(CONFIG.log_path, 'dms_annotation_tracking.json')
+anno_file = 'dms_annotation_tracking.json'
+anno_tracker = Annotations2triannon::AnnotationTracker.new(anno_file)
 
-# persist the anno_tracking data to a file
-# @param anno_data [Hash]
-def anno_tracking_save(anno_data)
-  begin
-    dump_json(ANNO_TRACKING_FILE, anno_data)
-    puts "Annotation records updated in: #{ANNO_TRACKING_FILE}"
-  rescue
-    msg = "FAILURE to save annotation tracking file #{ANNO_TRACKING_FILE}"
-    CONFIG.logger.error(msg)
-  end
-end
-
-# retrieve the anno_tracking data from a file
-# @returns anno_data [Hash]
-def anno_tracking_load
-  data = {}
-  begin
-    if File.exists? ANNO_TRACKING_FILE
-      if File.size(ANNO_TRACKING_FILE).to_i > 0
-        data = JSON.parse( File.read(ANNO_TRACKING_FILE) )
-      end
-    end
-  rescue
-    msg = "FAILURE to load annotation tracking file #{ANNO_TRACKING_FILE}"
-    CONFIG.logger.error(msg)
-  end
-  return data
-end
-
-
-# -----------------------------------------------------------------------
 # DELETE previous annotations on triannon
-
 puts "\nAnnotation cleanup:"
-anno_tracking = anno_tracking_load
-anno_uris = []
-anno_tracking.each_pair do |manifest_uri, anno_lists|
-  anno_lists.each_pair do |anno_list_uri, anno_list|
-    anno_list.each do |anno_data|
-      anno_uris << RDF::URI.new(anno_data['uri'])
-    end
-  end
-end
-anno_ids = anno_uris.collect {|uri| tc.annotation_id(uri) }
-unless anno_ids.empty?
-  # Find the intersection of the DMS annotations previously
-  # created in triannon and the current set of annotations in triannon.
-  graph = tc.get_annotations
-  uris = tc.annotation_uris(graph)
-  ids = uris.collect {|uri| tc.annotation_id(uri)}
-  annos_to_remove = anno_ids & ids # intersection of arrays
-  annos_to_remove.each do |id|
-    success = tc.delete_annotation(id)
-    CONFIG.logger.error("FAILURE to delete #{id}") unless success
-  end
-end
-# Clear the record of the saved annotations
-anno_tracking_save({})
-
+anno_tracker.delete_annotations
+anno_tracker.archive
+anno_tracker.save({})
 
 # -----------------------------------------------------------------------
 # Loading IIIF annotations from a collection
@@ -194,10 +141,10 @@ text_annotations.each_pair do |m,anno_lists|
         CONFIG.logger.error("FAILURE to POST #{oa.id}")
       end
     end
-    anno_tracking_save(anno_tracking)
+    anno_tracker.save(anno_tracking)
   end
 end
-anno_tracking_save(anno_tracking)
+anno_tracker.save(anno_tracking)
 
 
 
