@@ -19,13 +19,18 @@ module Annotations2triannon
     def initialize(graph=RDF::Graph.new, id=nil)
       @@agent ||= Annotations2triannon::AGENT
       set_graph(graph)
-      set_id(id) # must be set after setting the graph
-      insert_annotation unless is_annotation? # useful when graph.empty?
+      # The set_graph will set @graph and also set @id, using the
+      # graph subject with RDF.type of OA.Annotation.  However, the
+      # id parameter for this init can override this default behavior,
+      # but it should be set after calling set_graph so it first has
+      # a chance to extract an ID from the graph.  Once the @id is set,
+      # the set_graph method will not touch it again.
+      @id = parse_id(id)
     end
 
-    # @see #set_id
+    # @see #parse_id
     def id=(id)
-      set_id(id)
+      @id = parse_id(id)
     end
 
     # @see #set_graph
@@ -259,17 +264,21 @@ module Annotations2triannon
     # Sets the annotation ID as an RDF::URI from id, but if the id is nil, it
     # will try to get the ID from the graph and, as a last resort, it will
     # generate a unique ID using a UUID.
-    # @param id [UUID|URI|String] to identify an open annotation
-    def set_id(id)
+    # @param id [URI|UUID|String] to identify an open annotation
+    def parse_id(id=nil)
       raise ArgumentError, 'id cannot be an empty String' if (id.instance_of?(String) && id.empty?)
       if id.nil?
-        # Try to get the ID from the graph or use a UUID
+        # Try to get the ID from the graph
         q = [nil, RDF.type, OA.Annotation]
-        @id = @graph.query(q).collect {|s| s.subject }.first || RDF::URI.parse(UUID.generate)
+        id = @graph.query(q).collect {|s| s.subject }.first
       else
-        # Try to parse the ID as an RDF::URI or use a UUID
-        @id = RDF::URI.parse(id) || RDF::URI.parse(UUID.generate)
+        # Try to parse the ID as an RDF::URI
+        id = RDF::URI.parse(id)
       end
+      # As a last resort, assign a UUID so @id will not be nil; an alternative
+      # could be to assign a blank node, using RDF::Node.new;  TODO: provide a
+      # general configuration option to use blank nodes for OA graphs.
+      id ||= RDF::URI.parse(UUID.generate)
     end
 
     # Sets the annotation graph as an RDF::Graph
@@ -277,8 +286,14 @@ module Annotations2triannon
     def set_graph(graph)
       raise ArgumentError, 'graph must be RDF::Graph instance' unless graph.instance_of? RDF::Graph
       @graph = graph
-      set_id(nil) if @id.nil?  # update the ID using the graph annotation URI
-      insert_annotation unless is_annotation? # ensure it's an open annotation
+      # The following code applies consequential rules to ensure the OA has an
+      # ID and that it is an OA graph.  These rules should be invoked whenever
+      # the @graph is initialized or assigned by graph= accessor.
+      # Update the ID using the graph annotation URI, unless it is already set.
+      # The parse_id method depends on @graph to identify the graph ID.
+      @id ||= parse_id
+      # Ensure it's an open annotation; these methods depend on @id to be set.
+      insert_annotation unless is_annotation?
     end
 
   end
