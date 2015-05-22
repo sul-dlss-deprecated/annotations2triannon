@@ -35,6 +35,107 @@ describe Annotations2triannon::OpenAnnotation do
       }' )
   }
 
+
+  describe 'has constants:' do
+    it 'CONTENT vocabulary for http://www.w3.org/2011/content#' do
+      const = Annotations2triannon::OpenAnnotation::CONTENT
+      expect(const).to eql RDF::Vocab::CNT
+    end
+    it 'OA vocabulary for http://www.w3.org/ns/oa#' do
+      const = Annotations2triannon::OpenAnnotation::OA
+      expect(const).to eql RDF::Vocab::OA
+    end
+    it 'IIIF_CONTEXT for http://iiif.io/api/presentation/2/context.json' do
+      const = Annotations2triannon::OpenAnnotation::IIIF_CONTEXT
+      expect(const).to be_instance_of String
+      expect(const).to include('http://iiif.io/api/presentation/2/context.json')
+    end
+    it 'OA_CONTEXT for http://www.w3.org/ns/oa.jsonld' do
+      const = Annotations2triannon::OpenAnnotation::OA_CONTEXT
+      expect(const).to be_instance_of String
+      expect(const).to include('http://www.w3.org/ns/oa.jsonld')
+    end
+  end
+
+  context '#id' do
+    it 'returns an RDF::URI' do
+      expect(g1.id).to be_a RDF::URI
+      expect(g2.id).to be_a RDF::URI
+      expect(g3.id).to be_a RDF::URI
+    end
+  end
+
+  context '#new' do
+    let(:g) { RDF::Graph.new }
+    context 'for default init' do
+      it 'sets the #id as an RDF::URI of a UUID' do
+        oa = Annotations2triannon::OpenAnnotation.new
+        expect(oa.id).to be_a RDF::URI
+        expect(UUID.validate(oa.id)).to be true
+      end
+      it 'sets the #graph as an RDF::Graph' do
+        oa = Annotations2triannon::OpenAnnotation.new
+        expect(oa.graph).to be_a RDF::Graph
+      end
+      it 'the #graph is an open annotation' do
+        oa = Annotations2triannon::OpenAnnotation.new
+        expect(oa.is_annotation?).to be true
+      end
+    end
+    context 'for init with an RDF::Graph' do
+      it 'accepts an empty RDF::Graph' do
+        oa = Annotations2triannon::OpenAnnotation.new(g)
+        expect(oa.graph).to be_a RDF::Graph
+      end
+      it 'ensures an empty RDF::Graph is an open annotation' do
+        oa = Annotations2triannon::OpenAnnotation.new(g)
+        expect(oa.is_annotation?).to be true
+      end
+      it 'ensures a graph with an RDF.type is also an open annotation' do
+        id = RDF::URI.parse(UUID.generate)
+        g << [id, RDF.type, RDF::Vocab::SKOS.Concept]
+        oa = Annotations2triannon::OpenAnnotation.new(g)
+        expect(oa.is_annotation?).to be true
+      end
+    end
+    context 'for init with an ID' do
+      it 'accepts a nil ID and sets the #id as an RDF::URI of a UUID' do
+        oa = Annotations2triannon::OpenAnnotation.new(g, nil)
+        expect(oa.id).to be_a RDF::URI
+        expect(UUID.validate(oa.id)).to be true
+      end
+      it 'accepts a String ID and parses it as an RDF::URI' do
+        id = 'abc'
+        oa = Annotations2triannon::OpenAnnotation.new(g, id)
+        expect(oa.id).to be_a RDF::URI
+        expect(oa.id).to eql RDF::URI.parse(id)
+      end
+      it 'accepts an RDF::URI and parses it as an RDF::URI' do
+        id = RDF::URI.parse('abc')
+        oa = Annotations2triannon::OpenAnnotation.new(g, id)
+        expect(oa.id).to be_a RDF::URI
+        expect(oa.id).to eql id
+      end
+      it 'accepts a UUID and parses it as an RDF::URI' do
+        id = UUID.generate
+        oa = Annotations2triannon::OpenAnnotation.new(g, id)
+        expect(oa.id).to be_a RDF::URI
+        expect(oa.id).to eql RDF::URI.parse(id)
+      end
+      it 'does NOT accept an empty String ID' do
+        expect{Annotations2triannon::OpenAnnotation.new(g, '')}.to raise_error
+      end
+    end
+  end
+
+  context '#graph' do
+    it 'returns an RDF::Graph' do
+      expect(g1.graph).to be_a RDF::Graph
+      expect(g2.graph).to be_a RDF::Graph
+      expect(g3.graph).to be_a RDF::Graph
+    end
+  end
+
   context '#annotatedBy' do
     it 'returns an array' do
       expect(g1.annotatedBy).to be_a Array
