@@ -18,23 +18,24 @@ module Annotations2triannon
     # @param id [UUID|URI|String] to identify an open annotation
     def initialize(graph=RDF::Graph.new, id=nil)
       @@agent ||= Annotations2triannon::AGENT
-      raise ArgumentError, 'graph must be RDF::Graph instance' unless graph.instance_of? RDF::Graph
-      if graph.empty?
-        # create a new open annotation
-        @graph = graph
-        id.nil? ? @id = get_id : @id = RDF::URI.parse(id)
-        insert_annotation
-      else
-        @graph = graph
-        raise ArgumentError, 'graph must be an open annotation' unless is_annotation?
-        id.nil? ? @id = get_id : @id = id
-      end
+      set_graph(graph)
+      # The set_graph will set @graph and also set @id, using the
+      # graph subject with RDF.type of OA.Annotation.  However, the
+      # id parameter for this init can override this default behavior,
+      # but it should be set after calling set_graph so it first has
+      # a chance to extract an ID from the graph.  Once the @id is set,
+      # the set_graph method will not touch it again.
+      @id = parse_id(id)
     end
 
-    def get_id
-      return @id unless @id.nil?
-      q = [nil, RDF.type, OA.Annotation]
-      @id = @graph.query(q).collect {|s| s.subject }.first || RDF::URI.parse(UUID.generate)
+    # @see #parse_id
+    def id=(id)
+      @id = parse_id(id)
+    end
+
+    # @see #set_graph
+    def graph=(graph)
+      set_graph(graph)
     end
 
     # @return [boolean] true if RDF.type is OA.Annotation, with OA.hasBody and OA.hasTarget
@@ -90,21 +91,11 @@ module Annotations2triannon
     end
 
     def body_graph
-      return @body_graph unless @body_graph.nil?
       g = RDF::Graph.new
       hasBody.each do |b|
         @graph.query( [b, :p, :o] ).each_statement {|s| g << s}
-        # if b.uri?
-        #   begin
-        #     b_resource = Resource.new(b)
-        #     b_resource.rdf.each_statement {|s| g << s}
-        #   rescue
-        #     # Nothing to be done here; the Resource#rdf method
-        #     # will log errors in RDF retrieval
-        #   end
-        # end
       end
-      @body_graph = g
+      g
     end
 
     def body_contentAsText
@@ -266,6 +257,43 @@ module Annotations2triannon
     def to_ttl
       provenance
       @graph.dump(:ttl, standard_prefixes: true)
+    end
+
+    private
+
+    # Sets the annotation ID as an RDF::URI from id, but if the id is nil, it
+    # will try to get the ID from the graph and, as a last resort, it will
+    # generate a unique ID using a UUID.
+    # @param id [URI|UUID|String] to identify an open annotation
+    def parse_id(id=nil)
+      raise ArgumentError, 'id cannot be an empty String' if (id.instance_of?(String) && id.empty?)
+      if id.nil?
+        # Try to get the ID from the graph
+        q = [nil, RDF.type, OA.Annotation]
+        id = @graph.query(q).collect {|s| s.subject }.first
+      else
+        # Try to parse the ID as an RDF::URI
+        id = RDF::URI.parse(id)
+      end
+      # As a last resort, assign a UUID so @id will not be nil; an alternative
+      # could be to assign a blank node, using RDF::Node.new;  TODO: provide a
+      # general configuration option to use blank nodes for OA graphs.
+      id ||= RDF::URI.parse(UUID.generate)
+    end
+
+    # Sets the annotation graph as an RDF::Graph
+    # @param graph [RDF::Graph]
+    def set_graph(graph)
+      raise ArgumentError, 'graph must be RDF::Graph instance' unless graph.instance_of? RDF::Graph
+      @graph = graph
+      # The following code applies consequential rules to ensure the OA has an
+      # ID and that it is an OA graph.  These rules should be invoked whenever
+      # the @graph is initialized or assigned by graph= accessor.
+      # Update the ID using the graph annotation URI, unless it is already set.
+      # The parse_id method depends on @graph to identify the graph ID.
+      @id ||= parse_id
+      # Ensure it's an open annotation; these methods depend on @id to be set.
+      insert_annotation unless is_annotation?
     end
 
   end

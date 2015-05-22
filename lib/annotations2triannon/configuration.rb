@@ -8,6 +8,7 @@ module Annotations2triannon
     attr_reader :logger
 
     attr_accessor :debug
+    attr_accessor :limit_random
     attr_accessor :limit_manifests
     attr_accessor :limit_annolists
     attr_accessor :limit_openannos
@@ -18,7 +19,8 @@ module Annotations2triannon
       @debug = env_boolean('DEBUG')
       logger_init
 
-      # In development, enable options for random sampling the data
+      # In development, enable options for sampling the data
+      @limit_random = env_boolean('ANNO_LIMIT_RANDOM') # 0..limit or random sampling
       @limit_manifests = ENV['ANNO_LIMIT_MANIFESTS'].to_i # 0 disables sampling
       @limit_annolists = ENV['ANNO_LIMIT_ANNOLISTS'].to_i # 0 disables sampling
       @limit_openannos = ENV['ANNO_LIMIT_OPENANNOS'].to_i # 0 disables sampling
@@ -26,6 +28,27 @@ module Annotations2triannon
       # Persistence options (TODO: provide options for triple stores)
       redis_init
     end
+
+    # Utility method for sampling annotation arrays, using either linear or
+    # random sampling of a subset of elements.  The instance variable
+    # .limit_random is a configuration parameter that defines whether
+    # linear or random sampling is used.
+    # @param array [Array] An array to be sampled
+    # @param limit [Integer] The number of elements to sample
+    # @returns array [Array] A subset of the input array
+    def array_sampler(array, limit=0)
+      if limit > 0
+        if @limit_random
+          array.sample(limit)
+        else
+          limit = limit - 1
+          array[0..limit]
+        end
+      else
+        array
+      end
+    end
+
 
     private
 
