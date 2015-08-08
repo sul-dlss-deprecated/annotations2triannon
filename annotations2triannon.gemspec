@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name        = 'annotations2triannon'
-  s.version     = '0.4.0'
+  s.version     = '0.4.1'
   s.licenses    = ['Apache-2.0']
   s.platform    = Gem::Platform::RUBY
 
@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'addressable'
   s.add_dependency 'linkeddata'
   # HTTP client and rack cache components
-  s.add_dependency 'triannon-client'
+  s.add_dependency 'triannon-client', '~> 0.5'
   s.add_dependency 'rest-client'
   s.add_dependency 'rest-client-components'
   s.add_dependency 'rack-cache'
